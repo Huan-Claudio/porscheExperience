@@ -1,75 +1,63 @@
-# React + TypeScript + Vite
+# Porsche Experience
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação web demonstrativa em **React + TypeScript + Vite** que apresenta uma experiência interativa sobre os modelos da Porsche.
 
-Currently, two official plugins are available:
+O projeto inclui páginas de introdução, catálogo de modelos, detalhes de veículos, formulário de cadastro e navegação entre páginas, tudo a partir de dados locais.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Recursos
 
-## React Compiler
+- Página inicial com hero, destaques da marca, estatísticas e galeria de imagens
+- Catálogo de modelos Porsche com cards e painel lateral de navegação
+- Página de detalhes do modelo com especificações, guia de proprietário e problemas conhecidos
+- Sistema de favoritos para marcar/desmarcar modelos
+- Formulário de cadastro com validação básica de campos
+- Layout responsivo e navegação interna em SPA
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Tecnologias
 
-Note: This will impact Vite dev & build performances.
+- React 19
+- TypeScript
+- Vite
+- ESLint
 
-## Expanding the ESLint configuration
+## Como executar
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. Instale as dependências:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Inicie o servidor de desenvolvimento:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+3. Abra o endereço exibido no terminal (normalmente `http://localhost:5173`)
+
+## Scripts úteis
+
+- `npm run dev` — inicia a aplicação em modo de desenvolvimento
+- `npm run build` — cria a versão de produção
+- `npm run preview` — roda uma versão de preview do build
+- `npm run lint` — executa o ESLint no projeto
+
+## Estrutura principal
+
+- `src/main.tsx` — ponto de entrada da aplicação e registro global de componentes
+- `src/App.tsx` — navegação entre páginas e estado principal (modelo selecionado, favoritos)
+- `src/data/porscheData.tsx` — dados dos modelos Porsche usados na interface
+- `src/pages/` — páginas principais do site
+- `src/components/` — componentes reutilizáveis como `Navbar`, `Footer`, `ModelCard` e `Dashboard`
+- `src/styles/main.css` — estilos principais da aplicação
+
+## Observações
+
+- Os dados são carregados localmente a partir de `src/data/porscheData.tsx` e não há backend conectado.
+- O formulário de cadastro e envio de problema são protótipos que simulam comportamento no front-end.
+
+## Licença
+
+Este repositório é um protótipo de experiência de usuário e pode ser usado como base para estudos e demonstrações.
+

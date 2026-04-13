@@ -54,7 +54,8 @@ window.ModelCard = function ModelCard({ modelo, favoritado, onFavoritar, onVerDe
         React.createElement('button', {
           className: `btn-fav ${favoritado ? 'active' : ''}`,
           onClick: () => onFavoritar(modelo.id),
-          title: favoritado ? 'Remover dos favoritos' : 'Adicionar aos favoritos'
+          title: favoritado ? 'Remover dos favoritos' : 'Adicionar aos favoritos',
+          'aria-label': favoritado ? 'Remover dos favoritos' : 'Adicionar aos favoritos'
         },
           React.createElement('i', { className: favoritado ? 'bi bi-heart-fill' : 'bi bi-heart' })
         )

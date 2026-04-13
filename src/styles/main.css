@@ -219,22 +219,48 @@ img { display: block; max-width: 100%; }
 }
 
 .btn-fav {
-  background: transparent;
-  border: 1.5px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.6);
-  padding: 10px 16px;
-  border-radius: 0;
+  background: var(--red) !important;
+  border: 2px solid white !important;
+  color: white !important;
+  padding: 12px 18px;
+  border-radius: 8px;
   font-size: 16px;
-  transition: all var(--transition);
   cursor: pointer;
   line-height: 1;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn-fav:hover,
+.btn-fav:hover {
+  background: var(--red-dark) !important;
+  border-color: white !important;
+  color: white !important;
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(213, 0, 28, 0.4);
+}
+
 .btn-fav.active {
-  background: rgba(213,0,28,0.15);
-  border-color: var(--red);
-  color: var(--red);
+  animation: heartPulse 0.6s ease-in-out;
+}
+
+.btn-fav.active:hover {
+  background: var(--red-dark) !important;
+  border-color: white !important;
+  color: white !important;
+  transform: scale(1.08);
+}
+
+@keyframes heartPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 
 /* ── SECTION LABELS ──────────────────── */

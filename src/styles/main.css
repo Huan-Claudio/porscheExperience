@@ -394,9 +394,7 @@ img { display: block; max-width: 100%; }
   color: white;
   padding: 48px;
   border-right: 1px solid var(--border);
-  position: sticky;
-  top: 68px;
-  min-height: calc(100vh - 68px);
+  height: 100%;
 }
 
 .dashboard-title {

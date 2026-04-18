@@ -130,7 +130,7 @@ window.ModelDetailPage = function ModelDetailPage({ modeloId, favoritos, onFavor
               React.createElement('div', { className: 'd-flex gap-3 flex-wrap' },
                 React.createElement('button', {
                   className: `btn-fav ${favoritado ? 'active' : ''}`,
-                  style: { padding: '12px 20px' },
+                  style: { padding: '12px 70px' },
                   onClick: () => onFavoritar(modelo.id)
                 },
                   React.createElement('i', { className: favoritado ? 'bi bi-heart-fill' : 'bi bi-heart' }),

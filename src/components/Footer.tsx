@@ -36,7 +36,7 @@ window.Footer = function Footer({ onNavegar }: IFooterProps) {
 
             // Credits
             React.createElement('div', { className: 'col-md-4 text-center text-md-end' },
-              React.createElement('small', null, 'Projeto acadêmico — Huan Cláudio Souza Viana')
+              React.createElement('small', null, 'Projeto acadêmico', React.createElement('br'), 'Huan Cláudio Souza Viana', React.createElement('br'), 'Gabriel de Oliveira Nascimento')
             )
           ),
 

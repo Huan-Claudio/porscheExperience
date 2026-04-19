@@ -6,6 +6,20 @@
 
 import * as React from 'react';
 
+
+interface modelo {
+  id: string;
+}
+// Função de download
+const baixarManual = (modelo: modelo) => {
+  const url = `/manuais/${modelo.id}.pdf`;
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", "");
+  link.click();
+};
+
 declare global {
   interface Window {
     PORSCHE_DATA: any[];
@@ -166,6 +180,7 @@ window.ModelDetailPage = function ModelDetailPage({ modeloId, favoritos, onFavor
         )
       ),
 
+      
       // ── MANUAL ──
       React.createElement('section', { className: 'manual-section py-5 py-lg-6' },
         React.createElement('div', { className: 'container py-4' },
@@ -177,8 +192,14 @@ window.ModelDetailPage = function ModelDetailPage({ modeloId, favoritos, onFavor
               React.createElement('p', { style: { color: 'rgba(255,255,255,0.65)', lineHeight: 1.85 } },
                 `Baixe o manual completo do seu ${modelo.nome}. Todas as informações sobre operação, manutenção preventiva, especificações técnicas e recursos do seu veículo em um documento oficial da Porsche.`
               ),
-              React.createElement('button', { className: 'btn-porsche mt-4' },
-                React.createElement('i', { className: 'bi bi-download' }), ' Baixar Manual PDF'
+              React.createElement(
+                'button',
+                {
+                  className: 'btn-porsche mt-4',
+                  onClick: () => baixarManual(modelo)
+                },
+                React.createElement('i', { className: 'bi bi-download' }),
+                ' Baixar Manual PDF'
               )
             ),
             React.createElement('div', { className: 'col-lg-7' },

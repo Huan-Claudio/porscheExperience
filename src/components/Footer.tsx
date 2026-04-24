@@ -42,7 +42,7 @@ window.Footer = function Footer({ onNavegar }: IFooterProps) {
                 React.createElement('br'), 
                 'Gabriel de Oliveira Nascimento',
                 React.createElement('br'),
-                '04/2026 - Desenvolvimento de Software Web')
+                '04/2026 - Desenvolvimento de Software Web — Prof. Fernando')
             )
           ),
 

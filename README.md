@@ -4,6 +4,10 @@ Aplicação web demonstrativa em **React + TypeScript + Vite** que apresenta uma
 
 O projeto inclui páginas de introdução, catálogo de modelos, detalhes de veículos, formulário de cadastro e navegação entre páginas, tudo a partir de dados locais.
 
+## Justificativa da Arquitetura
+
+A aplicação foi dividida em componentes com base no princípio de responsabilidade única: cada componente faz apenas uma coisa e a faz bem. Os componentes de UI reutilizáveis (ModelCard, Dashboard, StatBadge, ProblemCard, FaqItem) foram isolados na pasta components/ por aparecerem em múltiplos contextos e não carregarem lógica de navegação. As páginas (HomePage, ModelsPage, ModelDetailPage, RegisterPage) ficaram em pages/ por representarem telas completas com lógica própria de estado local. O estado global — página atual, modelo selecionado e lista de favoritos — foi centralizado em App.tsx, que age como única fonte de verdade e distribui dados e callbacks via props, evitando dependências cruzadas entre componentes. Essa separação facilita a manutenção: alterar o visual de um card não afeta a lógica de navegação, e adicionar uma nova página não exige modificar os componentes existentes. O arquivo porscheData.tsx foi isolado em data/ para desacoplar completamente os dados da apresentação, permitindo que o conteúdo seja alterado sem tocar em nenhum componente.
+
 ## Recursos
 
 - Página inicial com hero, destaques da marca, estatísticas e galeria de imagens

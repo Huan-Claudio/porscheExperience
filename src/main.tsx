@@ -24,6 +24,7 @@ import HomePage from './pages/HomePage';
 import ModelsPage from './pages/ModelsPage';
 import ModelDetailPage from './pages/ModelDetailPage';
 import RegisterPage from './pages/RegisterPage';
+import AccountPage from './pages/AccountPage';
 import App from './App';
 
 // Make components available globally for the app
@@ -39,6 +40,7 @@ import App from './App';
 (window as any).ModelsPage = ModelsPage;
 (window as any).ModelDetailPage = ModelDetailPage;
 (window as any).RegisterPage = RegisterPage;
+(window as any).AccountPage = AccountPage;
 
 // Mount React App
 const rootElement = document.getElementById('root');

@@ -10,16 +10,18 @@ interface INavbarProps {
   paginaAtual: string;
   onNavegar: (pagina: string) => void;
   totalFavoritos: number;
+  usuarioNome?: string;
+  onLogout?: () => void;
 }
 
-window.Navbar = function Navbar({ paginaAtual, onNavegar, totalFavoritos }: INavbarProps) {
+window.Navbar = function Navbar({ paginaAtual, onNavegar, totalFavoritos, usuarioNome, onLogout }: INavbarProps) {
   const { useState } = React;
   const [menuOpen, setMenuOpen] = useState(false);
 
   const links = [
     { id: 'home',     label: 'Início' },
     { id: 'models',   label: 'Modelos' },
-    { id: 'register', label: 'Cadastro' },
+    { id: usuarioNome ? 'account' : 'register', label: usuarioNome ? 'Minha Conta' : 'Login' },
   ];
 
   return (
@@ -55,8 +57,16 @@ window.Navbar = function Navbar({ paginaAtual, onNavegar, totalFavoritos }: INav
                   link.id === 'models' && totalFavoritos > 0
                     ? React.createElement('span', { className: 'pnav-fav-badge' }, totalFavoritos)
                     : null
-                )
-              )
+            )
+          ),
+
+          usuarioNome && React.createElement('button', {
+            className: 'pnav-link',
+            onClick: () => { onLogout?.(); setMenuOpen(false); }
+          },
+            React.createElement('i', { className: 'bi bi-box-arrow-right me-1' }),
+            'Sair'
+          )
             )
           ),
 

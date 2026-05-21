@@ -5,8 +5,16 @@
 // ============================================================
 
 import * as React from 'react';
+import type { PorscheModel, PorscheSpec } from '../types/porsche';
 
-window.ModelCard = function ModelCard({ modelo, favoritado, onFavoritar, onVerDetalhes }) {
+interface ModelCardProps {
+  modelo: PorscheModel;
+  favoritado: boolean;
+  onFavoritar: (id: string | number) => void;
+  onVerDetalhes: (id: string | number) => void;
+}
+
+window.ModelCard = function ModelCard({ modelo, favoritado, onFavoritar, onVerDetalhes }: ModelCardProps) {
   return (
     React.createElement('article', { className: 'model-card' },
 
@@ -16,8 +24,8 @@ window.ModelCard = function ModelCard({ modelo, favoritado, onFavoritar, onVerDe
           src: modelo.imagem,
           alt: modelo.nome,
           className: 'model-card-img',
-          onError: (e) => {
-            e.target.src = 'imagens/hero.jpg';
+          onError: (e: React.SyntheticEvent<HTMLImageElement>) => {
+            e.currentTarget.src = 'imagens/hero.jpg';
           }
         }),
         React.createElement('span', { className: `model-card-badge ${modelo.badgeClass}` },
@@ -33,7 +41,7 @@ window.ModelCard = function ModelCard({ modelo, favoritado, onFavoritar, onVerDe
 
       // Specs
       React.createElement('div', { className: 'model-card-specs' },
-        modelo.specs.map((s, i) =>
+        (modelo.specs || []).map((s: PorscheSpec, i: number) =>
           React.createElement('div', { key: i, className: 'model-spec' },
             React.createElement('div', { className: 'model-spec-value' }, s.valor),
             React.createElement('div', { className: 'model-spec-unit' }, s.label)

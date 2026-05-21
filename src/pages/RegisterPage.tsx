@@ -1,302 +1,254 @@
-// ============================================================
-//  src/pages/RegisterPage.tsx
-//  Layout assimétrico: section (col-lg-7) + aside (col-lg-5)
-//  Props: {}
-// ============================================================
-
 import * as React from 'react';
+import authService from '../services/authService';
+import cadastroService from '../services/cadastroService';
+import type { CadastroForm, UsuarioLogado } from '../types/porsche';
 
-declare global {
-  interface Window {
-    PORSCHE_DATA: any[];
-  }
-}
-
-interface IRegistroForm {
-  nome: string;
-  sobrenome: string;
-  email: string;
-  senha: string;
+interface RegistroForm extends CadastroForm {
   senhaConf: string;
-  cidade: string;
-  estado: string;
-  dataNasc: string;
-  modeloFav: string;
-  obs: string;
-  newsletter: boolean;
 }
 
-interface IErrors {
-  nome?: string;
-  email?: string;
-  cidade?: string;
-  senha?: string;
-  senhaConf?: string;
+interface RegisterPageProps {
+  onLogin?: (usuario: UsuarioLogado) => void;
+  onNavegar?: (pagina: string) => void;
 }
 
-window.RegisterPage = function RegisterPage() {
-  const { useState } = React;
-
-  // IRegistroForm interface
-  const [form, setForm] = useState<IRegistroForm>({
-    nome: '', sobrenome: '', email: '',
-    senha: '', senhaConf: '', cidade: '',
-    estado: '', dataNasc: '', modeloFav: '',
-    obs: '', newsletter: false
+window.RegisterPage = function RegisterPage({ onLogin, onNavegar }: RegisterPageProps) {
+  const [modo, setModo] = React.useState<'login' | 'cadastro'>('login');
+  const [submitting, setSubmitting] = React.useState(false);
+  const [successMsg, setSuccessMsg] = React.useState('');
+  const [loginForm, setLoginForm] = React.useState({ email: '', senha: '' });
+  const [form, setForm] = React.useState<RegistroForm>({
+    nome: '',
+    sobrenome: '',
+    email: '',
+    senha: '',
+    senhaConf: '',
+    cidade: '',
+    estado: '',
+    dataNasc: '',
+    modeloFav: '',
+    obs: '',
+    newsletter: false,
   });
 
-  const [successMsg, setSuccessMsg] = useState('');
-  const [errors, setErrors] = useState<IErrors>({});
-
-  const validate = (): IErrors => {
-    const e: IErrors = {};
-    if (!form.nome.trim())      e.nome = 'Nome obrigatório';
-    if (!form.email.trim())     e.email = 'E-mail obrigatório';
-    if (!form.cidade.trim())    e.cidade = 'Cidade obrigatória';
-    if (form.senha.length < 8)  e.senha = 'Mínimo 8 caracteres';
-    if (form.senha !== form.senhaConf) e.senhaConf = 'Senhas não conferem';
-    return e;
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
+    if (!loginForm.email.trim() || !loginForm.senha) {
+      alert('Informe e-mail e senha.');
       return;
     }
-    const modelo = form.modeloFav || 'um modelo Porsche';
-    setSuccessMsg(`${form.nome}, cadastro realizado com sucesso! Bem-vindo à comunidade Porsche. Seu interesse no ${modelo} foi registrado.`);
-    console.log('Cadastro enviado:', form);
-    setForm({ nome:'',sobrenome:'',email:'',senha:'',senhaConf:'',cidade:'',estado:'',dataNasc:'',modeloFav:'',obs:'',newsletter:false });
-    setErrors({});
+
+    try {
+      setSubmitting(true);
+      const usuario = await authService.login(loginForm.email, loginForm.senha);
+      onLogin?.(usuario);
+      onNavegar?.('account');
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Nao foi possivel fazer login. Confira e-mail e senha.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  // @ts-ignore - Helper function for form field generation
-  const _field = (id: keyof IRegistroForm, label: string, type: string = 'text', placeholder: string = '', required: boolean = false) => {
-    return React.createElement('div', { className: 'mb-3' },
-      React.createElement('label', { className: 'form-label' }, label + (required ? ' *' : '')),
-      React.createElement('input', {
-        type,
-        className: `form-control ${errors[id as keyof IErrors] ? 'is-invalid' : ''}`,
-        placeholder,
-        value: form[id],
-        onChange: (e: any) => { 
-          setForm({...form, [id]: (e.target as HTMLInputElement).value}); 
-          setErrors({...errors, [id as keyof IErrors]: ''}); 
-        }
-      }),
-      errors[id as keyof IErrors] && React.createElement('div', { className: 'invalid-feedback' }, errors[id as keyof IErrors])
-    );
+  const handleCadastro = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!form.nome.trim() || !form.email.trim() || !form.cidade.trim()) {
+      alert('Preencha nome, e-mail e cidade.');
+      return;
+    }
+    if (form.senha.length < 8) {
+      alert('A senha precisa ter no minimo 8 caracteres.');
+      return;
+    }
+    if (form.senha !== form.senhaConf) {
+      alert('As senhas nao conferem.');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const cadastro: CadastroForm = {
+        nome: form.nome,
+        sobrenome: form.sobrenome,
+        email: form.email,
+        senha: form.senha,
+        cidade: form.cidade,
+        estado: form.estado,
+        dataNasc: form.dataNasc,
+        modeloFav: form.modeloFav,
+        obs: form.obs,
+        newsletter: form.newsletter,
+      };
+      const usuario = await cadastroService.criar(cadastro);
+      authService.salvarSessao(usuario);
+      onLogin?.(usuario);
+      setSuccessMsg(`${usuario.nome}, cadastro criado e login realizado com sucesso.`);
+      onNavegar?.('account');
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Nao foi possivel concluir o cadastro.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     React.createElement('main', null,
-
-      // Page Header
       React.createElement('div', { className: 'page-header' },
         React.createElement('div', { className: 'container' },
-          React.createElement('span', { className: 'section-label' }, 'Registre-se'),
-          React.createElement('h1', { className: 'page-title' }, 'Seu Porsche', React.createElement('br'), 'começa aqui.'),
+          React.createElement('span', { className: 'section-label' }, modo === 'login' ? 'Entrar' : 'Registre-se'),
+          React.createElement('h1', { className: 'page-title' },
+            modo === 'login' ? 'Acesse sua' : 'Seu Porsche',
+            React.createElement('br'),
+            modo === 'login' ? 'conta.' : 'comeca aqui.'
+          ),
           React.createElement('div', { className: 'divider-red' })
         )
       ),
 
-      // Content
       React.createElement('div', { className: 'container py-5 py-lg-6' },
         React.createElement('div', { className: 'row g-5' },
-
-          // ── SECTION: Formulário (col-lg-7) ──
           React.createElement('section', { className: 'col-lg-7' },
             React.createElement('div', { className: 'report-form-wrap' },
-
-              React.createElement('h3', { style: { fontFamily: 'var(--font-display)', fontSize: '1.8rem', marginBottom: 6 } },
-                'Formulário de Cadastro'
+              React.createElement('div', { className: 'auth-tabs mb-4' },
+                React.createElement('button', {
+                  type: 'button',
+                  className: modo === 'login' ? 'active' : '',
+                  onClick: () => setModo('login'),
+                }, 'Login'),
+                React.createElement('button', {
+                  type: 'button',
+                  className: modo === 'cadastro' ? 'active' : '',
+                  onClick: () => setModo('cadastro'),
+                }, 'Cadastro')
               ),
-              React.createElement('p', { className: 'text-secondary mb-4', style: { fontSize: 14 } },
-                'Preencha os dados abaixo para se cadastrar na plataforma.'
-              ),
 
-              // Success
-              successMsg && React.createElement('div', { className: 'success-msg show' },
+              successMsg && React.createElement('div', { className: 'success-msg show mb-4' },
                 React.createElement('i', { className: 'bi bi-check-circle-fill text-danger me-2' }),
                 successMsg
               ),
 
-              React.createElement('form', { onSubmit: handleSubmit, noValidate: true },
-
-                // Nome / Sobrenome
-                React.createElement('div', { className: 'row g-3 mb-3' },
-                  React.createElement('div', { className: 'col-md-6' },
-                    React.createElement('label', { className: 'form-label' }, 'Nome *'),
-                    React.createElement('input', {
-                      type: 'text', className: `form-control ${errors.nome ? 'is-invalid' : ''}`,
-                      placeholder: 'Seu nome', value: form.nome,
-                    onChange: (e: any) => { setForm({...form, nome: (e.target as HTMLInputElement).value}); setErrors({...errors, nome:''}); }
-                    }),
-                    errors.nome && React.createElement('div', { className: 'invalid-feedback' }, errors.nome)
-                  ),
-                  React.createElement('div', { className: 'col-md-6' },
-                    React.createElement('label', { className: 'form-label' }, 'Sobrenome'),
-                    React.createElement('input', {
-                      type: 'text', className: 'form-control',
-                      placeholder: 'Seu sobrenome', value: form.sobrenome,
-                      onChange: (e: any) => setForm({...form, sobrenome: (e.target as HTMLInputElement).value})
-                    })
+              modo === 'login'
+                ? React.createElement('form', { onSubmit: handleLogin, noValidate: true },
+                    React.createElement('h3', { style: { fontFamily: 'var(--font-display)', fontSize: '1.8rem', marginBottom: 6 } }, 'Login'),
+                    React.createElement('p', { className: 'text-secondary mb-4', style: { fontSize: 14 } },
+                      'Entre para recuperar seus favoritos e acompanhar seus relatos.'
+                    ),
+                    React.createElement('div', { className: 'mb-3' },
+                      React.createElement('label', { className: 'form-label' }, 'E-mail'),
+                      React.createElement('input', {
+                        type: 'email',
+                        className: 'form-control',
+                        placeholder: 'seu@email.com',
+                        value: loginForm.email,
+                        onChange: (e: React.ChangeEvent<HTMLInputElement>) => setLoginForm({ ...loginForm, email: e.target.value }),
+                      })
+                    ),
+                    React.createElement('div', { className: 'mb-4' },
+                      React.createElement('label', { className: 'form-label' }, 'Senha'),
+                      React.createElement('input', {
+                        type: 'password',
+                        className: 'form-control',
+                        placeholder: 'Sua senha',
+                        value: loginForm.senha,
+                        onChange: (e: React.ChangeEvent<HTMLInputElement>) => setLoginForm({ ...loginForm, senha: e.target.value }),
+                      })
+                    ),
+                    React.createElement('button', { type: 'submit', className: 'btn-porsche', disabled: submitting },
+                      React.createElement('i', { className: submitting ? 'bi bi-hourglass-split' : 'bi bi-box-arrow-in-right' }),
+                      submitting ? ' Entrando...' : ' Entrar'
+                    )
                   )
-                ),
-
-                // Email
-                React.createElement('div', { className: 'mb-3' },
-                  React.createElement('label', { className: 'form-label' }, 'E-mail *'),
-                  React.createElement('input', {
-                    type: 'email', className: `form-control ${errors.email ? 'is-invalid' : ''}`,
-                    placeholder: 'seu@email.com', value: form.email,
-                    onChange: (e: any) => { setForm({...form, email: (e.target as HTMLInputElement).value}); setErrors({...errors, email:''}); }
-                  }),
-                  errors.email && React.createElement('div', { className: 'invalid-feedback' }, errors.email)
-                ),
-
-                // Senha
-                React.createElement('div', { className: 'row g-3 mb-3' },
-                  React.createElement('div', { className: 'col-md-6' },
-                    React.createElement('label', { className: 'form-label' }, 'Senha *'),
-                    React.createElement('input', {
-                      type: 'password', className: `form-control ${errors.senha ? 'is-invalid' : ''}`,
-                      placeholder: 'Mínimo 8 caracteres', value: form.senha,
-                      onChange: (e: any) => { setForm({...form, senha: (e.target as HTMLInputElement).value}); setErrors({...errors, senha:''}); }
-                    }),
-                    errors.senha && React.createElement('div', { className: 'invalid-feedback' }, errors.senha)
-                  ),
-                  React.createElement('div', { className: 'col-md-6' },
-                    React.createElement('label', { className: 'form-label' }, 'Confirmar Senha *'),
-                    React.createElement('input', {
-                      type: 'password', className: `form-control ${errors.senhaConf ? 'is-invalid' : ''}`,
-                      placeholder: 'Repita a senha', value: form.senhaConf,
-                      onChange: (e: any) => { setForm({...form, senhaConf: (e.target as HTMLInputElement).value}); setErrors({...errors, senhaConf:''}); }
-                    }),
-                    errors.senhaConf && React.createElement('div', { className: 'invalid-feedback' }, errors.senhaConf)
-                  )
-                ),
-
-                // Cidade / Estado
-                React.createElement('div', { className: 'row g-3 mb-3' },
-                  React.createElement('div', { className: 'col-md-7' },
-                    React.createElement('label', { className: 'form-label' }, 'Cidade *'),
-                    React.createElement('input', {
-                      type: 'text', className: `form-control ${errors.cidade ? 'is-invalid' : ''}`,
-                      placeholder: 'Sua cidade', value: form.cidade,
-                      onChange: (e: any) => { setForm({...form, cidade: (e.target as HTMLInputElement).value}); setErrors({...errors, cidade:''}); }
-                    }),
-                    errors.cidade && React.createElement('div', { className: 'invalid-feedback' }, errors.cidade)
-                  ),
-                  React.createElement('div', { className: 'col-md-5' },
-                    React.createElement('label', { className: 'form-label' }, 'Estado'),
-                    React.createElement('select', {
-                      className: 'form-select', value: form.estado,
-                      onChange: (e: any) => setForm({...form, estado: (e.target as HTMLSelectElement).value})
-                    },
-                      React.createElement('option', { value: '' }, 'Selecione'),
-                      ['SP','RJ','MG','RS','PR','SC','BA','CE','DF','GO','Outro'].map(s =>
-                        React.createElement('option', { key: s, value: s }, s)
+                : React.createElement('form', { onSubmit: handleCadastro, noValidate: true },
+                    React.createElement('h3', { style: { fontFamily: 'var(--font-display)', fontSize: '1.8rem', marginBottom: 6 } }, 'Formulario de Cadastro'),
+                    React.createElement('p', { className: 'text-secondary mb-4', style: { fontSize: 14 } },
+                      'Crie sua conta para salvar favoritos e acompanhar seus relatos.'
+                    ),
+                    React.createElement('div', { className: 'row g-3 mb-3' },
+                      field('Nome *', form.nome, (value) => setForm({ ...form, nome: value }), 'Seu nome'),
+                      field('Sobrenome', form.sobrenome, (value) => setForm({ ...form, sobrenome: value }), 'Seu sobrenome')
+                    ),
+                    fieldFull('E-mail *', form.email, (value) => setForm({ ...form, email: value }), 'seu@email.com', 'email'),
+                    React.createElement('div', { className: 'row g-3 mb-3' },
+                      field('Senha *', form.senha, (value) => setForm({ ...form, senha: value }), 'Minimo 8 caracteres', 'password'),
+                      field('Confirmar Senha *', form.senhaConf, (value) => setForm({ ...form, senhaConf: value }), 'Repita a senha', 'password')
+                    ),
+                    React.createElement('div', { className: 'row g-3 mb-3' },
+                      field('Cidade *', form.cidade, (value) => setForm({ ...form, cidade: value }), 'Sua cidade'),
+                      React.createElement('div', { className: 'col-md-5' },
+                        React.createElement('label', { className: 'form-label' }, 'Estado'),
+                        React.createElement('select', {
+                          className: 'form-select',
+                          value: form.estado,
+                          onChange: (e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, estado: e.target.value }),
+                        },
+                          React.createElement('option', { value: '' }, 'Selecione'),
+                          ['SP', 'RJ', 'MG', 'RS', 'PR', 'SC', 'BA', 'CE', 'DF', 'GO'].map((estado) =>
+                            React.createElement('option', { key: estado, value: estado }, estado)
+                          )
+                        )
                       )
+                    ),
+                    fieldFull('Data de nascimento', form.dataNasc, (value) => setForm({ ...form, dataNasc: value }), '', 'date'),
+                    React.createElement('div', { className: 'mb-3' },
+                      React.createElement('label', { className: 'form-label' }, 'Modelo Porsche favorito'),
+                      React.createElement('select', {
+                        className: 'form-select',
+                        value: form.modeloFav,
+                        onChange: (e: React.ChangeEvent<HTMLSelectElement>) => setForm({ ...form, modeloFav: e.target.value }),
+                      },
+                        React.createElement('option', { value: '' }, 'Selecione um modelo'),
+                        ['Porsche 911', 'Porsche Taycan', '718 Cayman', 'Porsche Macan', 'Porsche Panamera', '718 Spyder RS'].map((modelo) =>
+                          React.createElement('option', { key: modelo, value: modelo }, modelo)
+                        )
+                      )
+                    ),
+                    React.createElement('div', { className: 'mb-4' },
+                      React.createElement('label', { className: 'form-label' }, 'Observacoes'),
+                      React.createElement('textarea', {
+                        className: 'form-control',
+                        rows: 3,
+                        value: form.obs,
+                        placeholder: 'Conte-nos mais sobre seu interesse na Porsche...',
+                        onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, obs: e.target.value }),
+                      })
+                    ),
+                    React.createElement('div', { className: 'mb-4 form-check' },
+                      React.createElement('input', {
+                        className: 'form-check-input',
+                        type: 'checkbox',
+                        id: 'newsletter',
+                        checked: form.newsletter,
+                        onChange: (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, newsletter: e.target.checked }),
+                      }),
+                      React.createElement('label', { className: 'form-check-label', htmlFor: 'newsletter', style: { fontSize: 14 } },
+                        'Desejo receber novidades da Porsche por e-mail'
+                      )
+                    ),
+                    React.createElement('button', { type: 'submit', className: 'btn-porsche', disabled: submitting },
+                      React.createElement('i', { className: submitting ? 'bi bi-hourglass-split' : 'bi bi-check2-circle' }),
+                      submitting ? ' Salvando...' : ' Criar Conta'
                     )
                   )
-                ),
-
-                // Data de nascimento
-                React.createElement('div', { className: 'mb-3' },
-                  React.createElement('label', { className: 'form-label' }, 'Data de nascimento'),
-                  React.createElement('input', {
-                    type: 'date', className: 'form-control', value: form.dataNasc,
-                    onChange: (e: any) => setForm({...form, dataNasc: (e.target as HTMLInputElement).value})
-                  })
-                ),
-
-                // Modelo favorito
-                React.createElement('div', { className: 'mb-3' },
-                  React.createElement('label', { className: 'form-label' }, 'Modelo Porsche favorito'),
-                  React.createElement('select', {
-                    className: 'form-select', value: form.modeloFav,
-                      onChange: (e: any) => setForm({...form, modeloFav: (e.target as HTMLSelectElement).value})
-                  },
-                    React.createElement('option', { value: '' }, 'Selecione um modelo'),
-                    ['Porsche 911','Porsche Taycan','Porsche 718 Cayman','Porsche Macan','Porsche Panamera','718 Spyder RS'].map(m =>
-                      React.createElement('option', { key: m, value: m }, m)
-                    )
-                  )
-                ),
-
-                // Observações
-                React.createElement('div', { className: 'mb-4' },
-                  React.createElement('label', { className: 'form-label' }, 'Observações'),
-                  React.createElement('textarea', {
-                    className: 'form-control', rows: 3,
-                    placeholder: 'Conte-nos mais sobre seu interesse na Porsche...',
-                    value: form.obs,
-                    onChange: (e: any) => setForm({...form, obs: (e.target as HTMLTextAreaElement).value})
-                  })
-                ),
-
-                // Newsletter checkbox
-                React.createElement('div', { className: 'mb-4' },
-                  React.createElement('div', { className: 'form-check' },
-                    React.createElement('input', {
-                      className: 'form-check-input', type: 'checkbox',
-                      id: 'newsletter', checked: form.newsletter,
-                      onChange: (e: any) => setForm({...form, newsletter: (e.target as HTMLInputElement).checked})
-                    }),
-                    React.createElement('label', { className: 'form-check-label', htmlFor: 'newsletter', style: { fontSize: 14 } },
-                      'Desejo receber novidades e lançamentos da Porsche por e-mail'
-                    )
-                  )
-                ),
-
-                React.createElement('button', { type: 'submit', className: 'btn-porsche' },
-                  React.createElement('i', { className: 'bi bi-check2-circle' }), ' Concluir Cadastro'
-                )
-              )
             )
           ),
 
-          // ── ASIDE: Sidebar de benefícios (col-lg-5) ──
           React.createElement('aside', { className: 'col-lg-5' },
             React.createElement('div', { className: 'register-sidebar' },
-              React.createElement('span', { className: 'section-label' }, 'Por que se cadastrar'),
-              React.createElement('h3', { style: { color:'white', fontSize:'1.8rem', letterSpacing:'-0.5px', marginBottom:28 } },
-                'Benefícios exclusivos'
+              React.createElement('span', { className: 'section-label' }, 'Sua garagem'),
+              React.createElement('h3', { style: { color: 'white', fontSize: '1.8rem', letterSpacing: '-0.5px', marginBottom: 28 } },
+                'Dados salvos na sua conta'
               ),
-
               [
-                { icon: 'bi-bell', titulo: 'Lançamentos em primeira mão', desc: 'Seja o primeiro a saber sobre novos modelos, edições limitadas e eventos exclusivos da Porsche.' },
-                { icon: 'bi-calendar-event', titulo: 'Convites para eventos', desc: 'Test drives, track days, exposições e eventos especiais para entusiastas da marca.' },
-                { icon: 'bi-file-text', titulo: 'Conteúdo exclusivo', desc: 'Artigos técnicos, histórias da marca, bastidores de corridas e análises aprofundadas.' },
-                { icon: 'bi-person-check', titulo: 'Comunidade Porsche', desc: 'Conecte-se com outros entusiastas e proprietários da marca no Brasil.' },
-              ].map((item, i) =>
-                React.createElement('div', { key: i, className: 'info-item-r' },
-                  React.createElement('div', { className: 'info-icon-r' },
-                    React.createElement('i', { className: item.icon })
-                  ),
+                { icon: 'bi-heart-fill', titulo: 'Favoritos persistentes', desc: 'Os modelos favoritados ficam salvos no seu login.' },
+                { icon: 'bi-chat-left-text', titulo: 'Meus relatos', desc: 'Acompanhe perguntas e veja respostas da comunidade.' },
+                { icon: 'bi-person-check', titulo: 'Sessao simples', desc: 'Entre e continue de onde parou.' },
+              ].map((item) =>
+                React.createElement('div', { key: item.titulo, className: 'info-item-r' },
+                  React.createElement('div', { className: 'info-icon-r' }, React.createElement('i', { className: item.icon })),
                   React.createElement('div', null,
                     React.createElement('h6', null, item.titulo),
                     React.createElement('p', null, item.desc)
                   )
-                )
-              ),
-
-              React.createElement('hr', { style: { borderColor: '#2a2a2a', margin: '28px 0' } }),
-
-              React.createElement('h6', { style: { color:'white',fontSize:'11px',textTransform:'uppercase',letterSpacing:'1.5px',marginBottom:20 } },
-                'Como funciona'
-              ),
-              [
-                'Preencha o formulário com seus dados',
-                'Confirme seu e-mail e ative sua conta',
-                'Aproveite todos os benefícios exclusivos'
-              ].map((txt, i) =>
-                React.createElement('div', { key: i, className: 'd-flex align-items-start mb-3' },
-                  React.createElement('span', { className: 'step-badge-r' }, i + 1),
-                  React.createElement('p', { style: { fontSize: 13, color: 'rgba(255,255,255,0.6)', margin: 0 } }, txt)
                 )
               )
             )
@@ -307,4 +259,39 @@ window.RegisterPage = function RegisterPage() {
   );
 };
 
+const field = (
+  label: string,
+  value: string,
+  onChange: (value: string) => void,
+  placeholder = '',
+  type = 'text'
+) => React.createElement('div', { className: 'col-md-6' },
+  React.createElement('label', { className: 'form-label' }, label),
+  React.createElement('input', {
+    type,
+    className: 'form-control',
+    placeholder,
+    value,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value),
+  })
+);
+
+const fieldFull = (
+  label: string,
+  value: string,
+  onChange: (value: string) => void,
+  placeholder = '',
+  type = 'text'
+) => React.createElement('div', { className: 'mb-3' },
+  React.createElement('label', { className: 'form-label' }, label),
+  React.createElement('input', {
+    type,
+    className: 'form-control',
+    placeholder,
+    value,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value),
+  })
+);
+
 export default window.RegisterPage;
+

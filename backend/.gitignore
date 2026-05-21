@@ -1,0 +1,46 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+.flattened-pom.xml
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.settings/
+.classpath
+.project
+*.code-workspace
+
+# VS Code
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+.env
+.env.local
+.env.*.local
+
+# Spring Boot
+application-local.properties
+application-dev.properties
+.m2/
+
+# Logs
+*.log
+logs/
+
+# Build
+out/
+dist/
+build/

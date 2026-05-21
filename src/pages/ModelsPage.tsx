@@ -5,10 +5,10 @@
 // ============================================================
 
 import * as React from 'react';
+import type { PorscheModel } from '../types/porsche';
 
 declare global {
   interface Window {
-    PORSCHE_DATA: any[];
     Dashboard: any;
     ModelCard: any;
   }
@@ -16,13 +16,13 @@ declare global {
 
 interface IModelsPageProps {
   favoritos: string[];
-  onFavoritar: (id: string) => void;
-  onVerDetalhes: (id: string) => void;
+  modelos: PorscheModel[];
+  onFavoritar: (id: string | number) => void;
+  onVerDetalhes: (id: string | number) => void;
+  onDeletar?: (id: number) => void;
 }
 
-window.ModelsPage = function ModelsPage({ favoritos, onFavoritar, onVerDetalhes }: IModelsPageProps) {
-  const modelos = window.PORSCHE_DATA;
-
+window.ModelsPage = function ModelsPage({ favoritos, modelos, onFavoritar, onVerDetalhes }: IModelsPageProps) {
   return (
     React.createElement('main', null,
 
@@ -61,7 +61,7 @@ window.ModelsPage = function ModelsPage({ favoritos, onFavoritar, onVerDetalhes 
                   React.createElement('div', { key: modelo.id, className: 'col-md-6 col-xl-4' },
                     React.createElement(window.ModelCard, {
                       modelo: modelo,
-                      favoritado: favoritos.includes(modelo.id),
+                      favoritado: favoritos.includes(String(modelo.id)),
                       onFavoritar: onFavoritar,
                       onVerDetalhes: onVerDetalhes
                     })

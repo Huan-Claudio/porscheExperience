@@ -5,14 +5,13 @@
 // ============================================================
 
 import * as React from 'react';
+import problemReportService from '../services/problemReportService';
+import porscheModelService from '../services/porscheModelService';
+import type { PorscheModel, PorscheProblema, UsuarioLogado } from '../types/porsche';
 
-
-interface modelo {
-  id: string;
-}
 // Função de download
-const baixarManual = (modelo: modelo) => {
-  const url = `/manuais/${modelo.id}.pdf`;
+const baixarManual = (modelo: PorscheModel) => {
+  const url = `/manuais/${modelo.manualId}.pdf`;
 
   const link = document.createElement("a");
   link.href = url;
@@ -22,26 +21,26 @@ const baixarManual = (modelo: modelo) => {
 
 declare global {
   interface Window {
-    PORSCHE_DATA: any[];
     ProblemCard: any;
     FaqItem: any;
   }
 }
 
 interface IModelDetailPageProps {
-  modeloId: string;
+  modeloId: string | null;
   favoritos: string[];
-  onFavoritar: (id: string) => void;
+  modelos: PorscheModel[];
+  onFavoritar: (id: string | number) => void;
   onVoltar: () => void;
+  onAtualizar?: (id: number, modelo: PorscheModel) => void;
+  onDeletar?: (id: number) => void;
+  usuario?: UsuarioLogado | null;
+  onRelatoCriado?: (relato: PorscheProblema) => void;
 }
 
-window.ModelDetailPage = function ModelDetailPage({ modeloId, favoritos, onFavoritar, onVoltar }: IModelDetailPageProps) {
-  const { useState } = React;
-  const modelos = window.PORSCHE_DATA;
-  const modelo = modelos.find((m: any) => m.id === modeloId);
-
-  const [reportSuccess, setReportSuccess] = useState(false);
-  const [formData, setFormData] = useState({
+function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, usuario, onRelatoCriado }: IModelDetailPageProps) {
+  const [reportSuccess, setReportSuccess] = React.useState(false);
+  const [formData, setFormData] = React.useState({
     anoVeiculo: '',
     km: '',
     categoria: '',
@@ -50,6 +49,36 @@ window.ModelDetailPage = function ModelDetailPage({ modeloId, favoritos, onFavor
     solucao: '',
     email: ''
   });
+  const [relatos, setRelatos] = React.useState<PorscheProblema[]>([]);
+  const [carregandoRelatos, setCarregandoRelatos] = React.useState(false);
+  const modelo = modelos && modelos.length > 0
+    ? modelos.find((m) =>
+        String(m.id) === String(modeloId) || m.slug === modeloId || m.nome === modeloId
+      )
+    : null;
+
+  React.useEffect(() => {
+    const modeloNumerico = Number(modelo?.id);
+    if (!modelo || !Number.isFinite(modeloNumerico)) {
+      setRelatos(modelo?.problemas || []);
+      return;
+    }
+
+    const carregarRelatos = async () => {
+      try {
+        setCarregandoRelatos(true);
+        const dados = await problemReportService.listarPorModelo(modeloNumerico);
+        setRelatos(dados.length > 0 ? dados : modelo.problemas);
+      } catch (error) {
+        console.error('Erro ao carregar relatos:', error);
+        setRelatos(modelo.problemas);
+      } finally {
+        setCarregandoRelatos(false);
+      }
+    };
+
+    carregarRelatos();
+  }, [modelo]);
 
   if (!modelo) {
     return React.createElement('div', { className: 'container py-5 text-center' },
@@ -58,21 +87,74 @@ window.ModelDetailPage = function ModelDetailPage({ modeloId, favoritos, onFavor
     );
   }
 
-  const favoritado = favoritos.includes(modelo.id);
+  const favoritado = favoritos.includes(String(modelo.id));
 
-  const handleReport = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleReport = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.anoVeiculo || !formData.categoria || !formData.titulo || !formData.descricao) {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
-    setReportSuccess(true);
-    console.log('Relato de problema enviado:', formData);
-    setFormData({ anoVeiculo: '', km: '', categoria: '', titulo: '', descricao: '', solucao: '', email: '' });
-    const formElement = document.getElementById('reportForm');
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: 'smooth' });
+
+    const modeloNumerico = await resolverModeloIdBanco(modelo);
+    if (!modeloNumerico) {
+      alert('Não foi possível identificar este modelo no banco. Recarregue a página com o backend ligado e tente novamente.');
+      return;
     }
+
+    try {
+      const novoRelato = await problemReportService.criar(modeloNumerico, {
+        porscheModelId: modeloNumerico,
+        cadastroId: usuario?.id,
+        anoVeiculo: Number(formData.anoVeiculo),
+        km: formData.km,
+        categoria: formData.categoria,
+        titulo: formData.titulo,
+        descricao: formData.descricao,
+        solucao: formData.solucao,
+        email: formData.email,
+        severidade: formData.categoria === 'Motor' || formData.categoria === 'Freios' ? 'Alta' : 'Média',
+      });
+
+      setRelatos(prev => [novoRelato, ...prev]);
+      onRelatoCriado?.(novoRelato);
+      setReportSuccess(true);
+      setFormData({ anoVeiculo: '', km: '', categoria: '', titulo: '', descricao: '', solucao: '', email: '' });
+      const formElement = document.getElementById('reportForm');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.message || 'Não foi possível enviar o relato. Verifique o backend e tente novamente.');
+    }
+  };
+
+  const resolverModeloIdBanco = async (modeloAtual: PorscheModel): Promise<number | null> => {
+    if (typeof modeloAtual.id === 'number') return modeloAtual.id;
+
+    try {
+      const modelosBanco = await porscheModelService.listarTodos();
+      const modeloBanco = modelosBanco.find((item) =>
+        item.nome === modeloAtual.nome ||
+        item.slug === modeloAtual.slug ||
+        item.manualId === modeloAtual.manualId
+      );
+
+      if (typeof modeloBanco?.id === 'number') return modeloBanco.id;
+    } catch (error) {
+      console.error('Erro ao resolver modelo no banco:', error);
+    }
+
+    return null;
+  };
+
+  const handleResponderRelato = async (relatoId: number, resposta: { autor: string; mensagem: string }) => {
+    const novaResposta = await problemReportService.responder(relatoId, resposta);
+    setRelatos(prev => prev.map(relato =>
+      Number(relato.id) === relatoId
+        ? { ...relato, respostas: [...(relato.respostas || []), novaResposta] }
+        : relato
+    ));
   };
 
   const anos = [];
@@ -238,8 +320,14 @@ window.ModelDetailPage = function ModelDetailPage({ modeloId, favoritos, onFavor
             )
           ),
 
-          modelo.problemas.map((p: any, i: number) =>
-            React.createElement(window.ProblemCard, { key: i, problema: p })
+          carregandoRelatos && React.createElement('p', { className: 'text-muted text-center' }, 'Carregando relatos do banco...'),
+
+          relatos.map((p, i) =>
+            React.createElement(window.ProblemCard, {
+              key: p.id || i,
+              problema: p,
+              onResponder: handleResponderRelato
+            })
           ),
 
           // Nota
@@ -401,6 +489,9 @@ window.ModelDetailPage = function ModelDetailPage({ modeloId, favoritos, onFavor
       )
     )
   );
-};
+}
 
-export default window.ModelDetailPage;
+// Make it available globally
+window.ModelDetailPage = ModelDetailPage;
+
+export default ModelDetailPage;

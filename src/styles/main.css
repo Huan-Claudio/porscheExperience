@@ -656,6 +656,62 @@ img { display: block; max-width: 100%; }
 
 .problem-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
 .problem-desc  { font-size: 13.5px; color: #666; line-height: 1.65; }
+.problem-solution { font-size: 13px; color: #333; line-height: 1.65; margin-top: 10px; }
+
+.problem-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.problem-meta span {
+  background: #f2f2f2;
+  border: 1px solid #e2e2e2;
+  color: #666;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 9px;
+}
+
+.reply-list {
+  margin-top: 16px;
+  border-top: 1px solid #eee;
+  padding-top: 14px;
+}
+
+.reply-item {
+  background: #f7f5f2;
+  border-left: 3px solid var(--red);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.reply-author {
+  color: var(--dark);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+
+.reply-item p {
+  color: #555;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.reply-actions { margin-top: 14px; }
+
+.reply-form {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+}
 
 .severity-badge {
   font-size: 10px;
@@ -941,6 +997,99 @@ footer img { width: 52px; opacity: 0.7; }
 .form-check-input:checked {
   background-color: var(--red);
   border-color: var(--red);
+}
+
+.auth-tabs {
+  display: inline-flex;
+  border: 1px solid #d8d8d8;
+  background: #f7f5f2;
+}
+
+.auth-tabs button {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 12px 22px;
+  cursor: pointer;
+}
+
+.auth-tabs button.active {
+  background: var(--dark);
+  color: white;
+}
+
+.account-panel {
+  background: var(--dark);
+  color: white;
+  padding: 40px;
+  height: 100%;
+}
+
+.account-panel h3 {
+  color: white;
+  margin-bottom: 12px;
+}
+
+.account-panel p {
+  color: rgba(255,255,255,0.65);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.account-section-title {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.account-empty {
+  background: white;
+  border: 1px solid #e8e8e8;
+  color: #666;
+  font-size: 14px;
+  padding: 24px;
+}
+
+.account-list-item {
+  width: 100%;
+  background: white;
+  border: 1px solid #e8e8e8;
+  color: var(--dark);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 22px;
+  margin-bottom: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color var(--transition), transform var(--transition);
+}
+
+.account-list-item:hover {
+  border-color: #ccc;
+  transform: translateY(-2px);
+}
+
+.account-report {
+  background: white;
+  border: 1px solid #e8e8e8;
+  padding: 22px 24px;
+  margin-bottom: 10px;
+}
+
+.account-report h6 {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.account-report > p {
+  color: #666;
+  font-size: 13.5px;
+  line-height: 1.65;
 }
 
 /* ── ABOUT STRIP ─────────────────────── */

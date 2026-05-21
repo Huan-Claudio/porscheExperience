@@ -5,14 +5,21 @@
 // ============================================================
 
 import * as React from 'react';
+import type { PorscheModel } from '../types/porsche';
 
-window.Dashboard = function Dashboard({ favoritos, modelos, onVerDetalhes }) {
+interface DashboardProps {
+  favoritos: string[];
+  modelos: PorscheModel[];
+  onVerDetalhes: (id: string | number) => void;
+}
+
+window.Dashboard = function Dashboard({ favoritos, modelos, onVerDetalhes }: DashboardProps) {
   const totalModelos = modelos.length;
   const totalFavoritos = favoritos.length;
-  const modelosFavoritados = modelos.filter(m => favoritos.includes(m.id));
+  const modelosFavoritados = modelos.filter((m) => favoritos.includes(String(m.id)));
 
   // Categorias distintas
-  const categorias = [...new Set(modelos.map(m => m.badge))];
+  const categorias = [...new Set(modelos.map((m) => m.badge))];
   const totalCategorias = categorias.length;
 
   return (
@@ -75,7 +82,7 @@ window.Dashboard = function Dashboard({ favoritos, modelos, onVerDetalhes }) {
           ? React.createElement('p', { className: 'dash-empty' },
               'Nenhum modelo favoritado ainda. Explore os modelos e favorite seus preferidos!'
             )
-          : modelosFavoritados.map(m =>
+          : modelosFavoritados.map((m) =>
               React.createElement('div', {
                 key: m.id,
                 className: 'dash-fav-item',

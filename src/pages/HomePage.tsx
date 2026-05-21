@@ -4,21 +4,25 @@
 // ============================================================
 
 import * as React from 'react';
+import type { PorscheModel } from '../types/porsche';
 
 declare global {
   interface Window {
-    PORSCHE_DATA: any[];
+    StatBadge: any;
   }
 }
 
 interface IHomePageProps {
   onNavegar: (pagina: string) => void;
-  onVerDetalhes: (id: string) => void;
+  onVerDetalhes: (id: string | number) => void;
+  modelos: PorscheModel[];
 }
 
-window.HomePage = function HomePage({ onNavegar, onVerDetalhes }: IHomePageProps) {
-  const modelos = window.PORSCHE_DATA;
-
+window.HomePage = function HomePage({ onNavegar, onVerDetalhes, modelos }: IHomePageProps) {
+  const detalhePorSlug = (slug: string) => {
+    const modelo = modelos.find((item) => item.slug === slug || String(item.id) === slug);
+    onVerDetalhes(modelo?.id ?? slug);
+  };
   const destaques = [
     { icon: 'bi-speedometer2', titulo: 'Dinâmica Boxer', desc: 'Motor Boxer com cilindros horizontais opostos posiciona o peso baixo no chassi, criando precisão cirúrgica e equilíbrio perfeito.' },
     { icon: 'bi-calendar-check', titulo: 'Versatilidade Real', desc: 'Um 911 vai ao track day no sábado e ao supermercado na segunda. Confiabilidade alemã para uso diário sem abrir mão da performance.' },
@@ -170,7 +174,7 @@ window.HomePage = function HomePage({ onNavegar, onVerDetalhes }: IHomePageProps
           React.createElement('div', { className: 'row g-3' },
             imgsGaleria.map((img, i) =>
               React.createElement('div', { key: i, className: 'col-12 col-md-6 col-lg-3' },
-                React.createElement('div', { className: 'gallery-item', onClick: () => onVerDetalhes(img.id), style: { cursor: 'pointer' } },
+                React.createElement('div', { className: 'gallery-item', onClick: () => detalhePorSlug(img.id), style: { cursor: 'pointer' } },
                   React.createElement('img', { src: img.src, alt: img.alt })
                 )
               )

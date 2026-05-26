@@ -6,6 +6,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import porscheData from './data/porscheData';
+import type { PorscheModel } from './types/porsche';
 
 // Import styles
 import './styles/main.css';
@@ -28,19 +29,19 @@ import AccountPage from './pages/AccountPage';
 import App from './App';
 
 // Make components available globally for the app
-(window as any).PORSCHE_DATA = porscheData;
-(window as any).Navbar = Navbar;
-(window as any).Footer = Footer;
-(window as any).ModelCard = ModelCard;
-(window as any).Dashboard = Dashboard;
-(window as any).StatBadge = StatBadge;
-(window as any).ProblemCard = ProblemCard;
-(window as any).FaqItem = FaqItem;
-(window as any).HomePage = HomePage;
-(window as any).ModelsPage = ModelsPage;
-(window as any).ModelDetailPage = ModelDetailPage;
-(window as any).RegisterPage = RegisterPage;
-(window as any).AccountPage = AccountPage;
+window.PORSCHE_DATA = porscheData as unknown as PorscheModel[];
+window.Navbar = Navbar;
+window.Footer = Footer;
+window.ModelCard = ModelCard;
+window.Dashboard = Dashboard;
+window.StatBadge = StatBadge;
+window.ProblemCard = ProblemCard;
+window.FaqItem = FaqItem;
+window.HomePage = HomePage;
+window.ModelsPage = ModelsPage;
+window.ModelDetailPage = ModelDetailPage;
+window.RegisterPage = RegisterPage;
+window.AccountPage = AccountPage;
 
 // Mount React App
 const rootElement = document.getElementById('root');

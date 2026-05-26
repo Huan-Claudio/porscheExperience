@@ -10,7 +10,7 @@ interface IFaq {
   resposta: string;
 }
 
-(window as any).FaqItem = function FaqItem({ faq }: { faq: IFaq }) {
+function FaqItem({ faq }: { faq: IFaq }) {
   const { useState } = React;
   const [open, setOpen] = useState(false);
 
@@ -28,6 +28,8 @@ interface IFaq {
       )
     )
   );
-};
+}
 
-export default window.FaqItem;
+window.FaqItem = FaqItem;
+
+export default FaqItem;

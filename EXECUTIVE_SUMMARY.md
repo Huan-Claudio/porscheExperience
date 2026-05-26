@@ -87,7 +87,7 @@ psql -U postgres -f database/init.sql
 ```bash
 cd backend
 mvn clean spring-boot:run
-# Esperado: http://localhost:8080/api
+# Esperado: http://localhost:8081/api
 ```
 
 ### 4️⃣ Rodar Frontend
@@ -150,7 +150,7 @@ git push origin main
            ↓
 ┌─────────────────────────────────────────┐
 │    Spring Boot Backend                  │
-│    (localhost:8080/api)                 │
+│    (localhost:8081/api)                 │
 │                                         │
 │  ┌─────────────────────────────────┐   │
 │  │ PorscheModelController (7 endpoints) │
@@ -235,7 +235,7 @@ GET    /api/modelos/buscar?nome=     → Busca por nome
 ```
 ✓ Verificar se backend está rodando
 ✓ Verificar se está na porta 8080
-✓ Verificar se URL está http://localhost:8080/api
+✓ Verificar se URL está http://localhost:8081/api
 ```
 
 ### "CORS Error"
@@ -419,7 +419,7 @@ Sucesso na entrega! 🚀
 ## 🔗 Links Rápidos
 
 - **Frontend Local:** http://localhost:5173
-- **Backend API:** http://localhost:8080/api
+- **Backend API:** http://localhost:8081/api
 - **Database:** PostgreSQL localhost:5432
 - **GitHub:** https://github.com/seu-usuario/porscheExperience
 

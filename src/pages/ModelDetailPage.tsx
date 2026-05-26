@@ -7,7 +7,7 @@
 import * as React from 'react';
 import problemReportService from '../services/problemReportService';
 import porscheModelService from '../services/porscheModelService';
-import type { PorscheModel, PorscheProblema, UsuarioLogado } from '../types/porsche';
+import type { PorscheFaq, PorscheModel, PorscheProblema, PorscheSpec, PorscheSpecDetalhe, UsuarioLogado } from '../types/porsche';
 
 // Função de download
 const baixarManual = (modelo: PorscheModel) => {
@@ -21,8 +21,8 @@ const baixarManual = (modelo: PorscheModel) => {
 
 declare global {
   interface Window {
-    ProblemCard: any;
-    FaqItem: any;
+    ProblemCard: unknown;
+    FaqItem: unknown;
   }
 }
 
@@ -37,6 +37,15 @@ interface IModelDetailPageProps {
   usuario?: UsuarioLogado | null;
   onRelatoCriado?: (relato: PorscheProblema) => void;
 }
+
+const mensagemErroApi = (error: unknown, fallback: string) => {
+  if (typeof error === 'object' && error !== null && 'response' in error) {
+    const response = (error as { response?: { data?: { message?: string } } }).response;
+    return response?.data?.message || fallback;
+  }
+
+  return fallback;
+};
 
 function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, usuario, onRelatoCriado }: IModelDetailPageProps) {
   const [reportSuccess, setReportSuccess] = React.useState(false);
@@ -124,8 +133,8 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
       if (formElement) {
         formElement.scrollIntoView({ behavior: 'smooth' });
       }
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Não foi possível enviar o relato. Verifique o backend e tente novamente.');
+    } catch (error: unknown) {
+      alert(mensagemErroApi(error, 'Não foi possível enviar o relato. Verifique o backend e tente novamente.'));
     }
   };
 
@@ -173,7 +182,7 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
               src: modelo.imagem,
               alt: modelo.nome,
               className: 'model-hero-img',
-              onError: (e: any) => { (e.target as HTMLImageElement).src = 'imagens/hero.jpg'; }
+              onError: (e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = 'imagens/hero.jpg'; }
             })
           ),
 
@@ -210,7 +219,7 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
 
               // Stats inline
               React.createElement('div', { className: 'd-flex gap-4 mb-32 flex-wrap', style: { marginBottom: '28px' } },
-                modelo.specs.map((s: any, i: number) =>
+                modelo.specs.map((s: PorscheSpec, i: number) =>
                   React.createElement('div', { key: i },
                     React.createElement('div', {
                       style: { fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 700, color: 'white', lineHeight: 1 }
@@ -249,7 +258,7 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
             React.createElement('div', { className: 'divider-red mx-auto' })
           ),
           React.createElement('div', { className: 'specs-grid' },
-            modelo.specsDetalhe.map((s: any, i: number) =>
+            modelo.specsDetalhe.map((s: PorscheSpecDetalhe, i: number) =>
               React.createElement('div', { key: i, className: 'spec-box' },
                 React.createElement('div', { className: 'spec-box-icon' },
                   React.createElement('i', { className: s.icone })
@@ -323,7 +332,7 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
           carregandoRelatos && React.createElement('p', { className: 'text-muted text-center' }, 'Carregando relatos do banco...'),
 
           relatos.map((p, i) =>
-            React.createElement(window.ProblemCard, {
+            React.createElement(window.ProblemCard as React.ElementType, {
               key: p.id || i,
               problema: p,
               onResponder: handleResponderRelato
@@ -384,7 +393,7 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
                       React.createElement('select', {
                         className: 'form-select',
                         value: formData.anoVeiculo,
-                        onChange: (e: any) => setFormData({...formData, anoVeiculo: (e.target as HTMLSelectElement).value})
+                        onChange: (e: React.ChangeEvent<HTMLSelectElement>) => setFormData({...formData, anoVeiculo: e.target.value})
                       },
                         React.createElement('option', { value: '' }, 'Selecione o ano'),
                         anos.map(a => React.createElement('option', { key: a, value: a }, a))
@@ -407,7 +416,7 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
                     React.createElement('select', {
                       className: 'form-select',
                       value: formData.categoria,
-                      onChange: (e: any) => setFormData({...formData, categoria: (e.target as HTMLSelectElement).value})
+                      onChange: (e: React.ChangeEvent<HTMLSelectElement>) => setFormData({...formData, categoria: e.target.value})
                     },
                       React.createElement('option', { value: '' }, 'Selecione uma categoria'),
                       ['Motor', 'Transmissão', 'Suspensão', 'Freios', 'Elétrica / Eletrônica', 'Carroceria', 'Interior', 'Outro'].map(c =>
@@ -434,7 +443,7 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
                       rows: 4,
                       placeholder: 'Descreva o problema com o máximo de detalhes possível: quando começou, em quais situações ocorre, se há algum padrão, etc.',
                       value: formData.descricao,
-                      onChange: (e: any) => setFormData({...formData, descricao: (e.target as HTMLTextAreaElement).value})
+                      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, descricao: e.target.value})
                     })
                   ),
 
@@ -445,7 +454,7 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
                       rows: 3,
                       placeholder: 'Se você já resolveu o problema, compartilhe como foi feito e qual foi o custo aproximado.',
                       value: formData.solucao,
-                      onChange: (e: any) => setFormData({...formData, solucao: (e.target as HTMLTextAreaElement).value})
+                      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({...formData, solucao: e.target.value})
                     })
                   ),
 
@@ -456,7 +465,7 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
                       className: 'form-control',
                       placeholder: 'Caso queira receber atualizações sobre seu relato',
                       value: formData.email,
-                      onChange: (e: any) => setFormData({...formData, email: (e.target as HTMLInputElement).value})
+                      onChange: (e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, email: e.target.value})
                     })
                   ),
 
@@ -480,8 +489,8 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
           ),
           React.createElement('div', { className: 'row justify-content-center' },
             React.createElement('div', { className: 'col-lg-8' },
-              modelo.faq.map((f: any, i: number) =>
-                React.createElement(window.FaqItem, { key: i, faq: f })
+              modelo.faq.map((f: PorscheFaq, i: number) =>
+                React.createElement(window.FaqItem as React.ElementType, { key: i, faq: f })
               )
             )
           )

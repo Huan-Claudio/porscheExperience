@@ -53,7 +53,7 @@ mvn clean spring-boot:run
 
 # Esperado:
 # Started PorscheExperienceApplication in 5 seconds
-# http://localhost:8080
+# http://localhost:8081
 ```
 
 **Testar:** http://localhost:8081/api/modelos (deve retornar JSON)

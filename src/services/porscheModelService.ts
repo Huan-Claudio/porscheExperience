@@ -103,7 +103,7 @@ const normalizarModelo = (modelo: ApiPorscheModel): PorscheModel => {
 };
 
 const paraApi = (modelo: PorscheModel): ApiPorscheModel => ({
-  id: typeof modelo.id === 'number' ? modelo.id : undefined,
+  id: typeof modelo.id === 'number' && modelo.id > 0 ? modelo.id : undefined,
   nome: modelo.nome,
   tagline: modelo.tagline,
   descricao: modelo.descricao,

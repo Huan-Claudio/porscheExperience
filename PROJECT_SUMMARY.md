@@ -233,7 +233,7 @@ npm run build
 2. **Frontend não carrega dados:**
    - Abrir DevTools (F12)
    - Verificar console para erros CORS
-   - Verificar se backend está em `http://localhost:8080/api`
+   - Verificar se backend está em `http://localhost:8081/api`
 
 3. **Banco não criado:**
    - Executar manualmente: `psql -U postgres -f database/init.sql`

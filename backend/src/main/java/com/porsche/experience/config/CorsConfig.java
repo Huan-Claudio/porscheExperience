@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * 
  * CORS (Cross-Origin Resource Sharing) é necessário porque:
  * - O front-end React é servido em http://localhost:5173 (Vite dev server)
- * - O backend Java está em http://localhost:8080
+ * - O backend Java está em http://localhost:8081/api
  * - Browsers bloqueiam requisições entre diferentes origens por padrão
  * 
  * Essa configuração permite que o React acesse os endpoints da API Java

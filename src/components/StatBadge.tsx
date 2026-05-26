@@ -7,7 +7,7 @@ import * as React from 'react';
 
 declare global {
   interface Window {
-    StatBadge: any;
+    StatBadge: unknown;
   }
 }
 
@@ -16,13 +16,15 @@ interface IStatBadgeProps {
   label: string;
 }
 
-window.StatBadge = function StatBadge({ valor, label }: IStatBadgeProps) {
+function StatBadge({ valor, label }: IStatBadgeProps) {
   return (
     React.createElement('div', { className: 'stat-item' },
       React.createElement('div', { className: 'stat-value' }, valor),
       React.createElement('div', { className: 'stat-label' }, label)
     )
   );
-};
+}
 
-export default window.StatBadge;
+window.StatBadge = StatBadge;
+
+export default StatBadge;

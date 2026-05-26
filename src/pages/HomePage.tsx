@@ -8,7 +8,7 @@ import type { PorscheModel } from '../types/porsche';
 
 declare global {
   interface Window {
-    StatBadge: any;
+    StatBadge: unknown;
   }
 }
 
@@ -83,7 +83,7 @@ window.HomePage = function HomePage({ onNavegar, onVerDetalhes, modelos }: IHome
               { valor: '761cv', label: 'Taycan Turbo S' },
             ].map((s, i) =>
               React.createElement('div', { key: i, className: 'col-6 col-md-3' },
-                React.createElement(window.StatBadge, { valor: s.valor, label: s.label })
+                React.createElement(window.StatBadge as React.ElementType, { valor: s.valor, label: s.label })
               )
             )
           )
@@ -186,4 +186,4 @@ window.HomePage = function HomePage({ onNavegar, onVerDetalhes, modelos }: IHome
   );
 };
 
-export default window.HomePage;
+export default window.HomePage as React.ElementType;

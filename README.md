@@ -1,383 +1,267 @@
-# Porsche Experience - Aplicação Web
+# Porsche Experience
 
-## 📋 Informações do Projeto
+## Informacoes do Projeto
 
-**Tema:** Catálogo de Modelos Porsche  
-**Disciplina:** Desenvolvimento de Software Web  
-**Integrantes:** Huan Cláudio Souza Viana e Gabriel de Oliveira Nascimento   
+**Tema:** catalogo interativo de modelos Porsche, relatos de problemas e comunidade de usuarios.  
+**Disciplina:** Desenvolvimento de Software Web.  
+**Integrantes:** Huan Claudio Souza Viana e Gabriel de Oliveira Nascimento.  
+**Data:** 05/2026.
 
----
+## Descricao
 
-## 📝 Descrição da Aplicação
+O Porsche Experience e uma aplicacao web completa com front-end em React + TypeScript e back-end Java integrado ao PostgreSQL. O sistema lista modelos Porsche vindos do banco, permite CRUD de modelos, cadastro/login de usuarios, favoritos persistidos por conta, relatos de problemas por modelo e respostas da comunidade.
 
-O **Porsche Experience** é uma aplicação web completa que apresenta um catálogo interativo de modelos Porsche com integração total entre front-end React e back-end Java.
+## Tecnologias Utilizadas
 
-### ✨ Funcionalidades
+- React, Vite, TypeScript, Bootstrap e Axios.
+- Java 17, Spring Boot, Spring MVC, Spring Data JPA e Hibernate.
+- PostgreSQL.
+- Maven, npm e Git/GitHub.
 
-- ✅ Listagem dinâmica de modelos (dados do banco)
-- ✅ Visualização de detalhes do modelo
-- ✅ Sistema de favoritos
-- ✅ Cadastro de novos modelos
-- ✅ Edição de modelos existentes
-- ✅ Exclusão de modelos
-- ✅ Dashboard com estatísticas
-- ✅ Layout 100% responsivo
-- ✅ Integração real com API REST Java
+> Observacao para avaliacao: o back-end esta organizado em Java com controller, service, repository e model, usando Hibernate/JPA. O Spring MVC roda sobre servlet container embutido. Caso a avaliacao exija JSP/Servlet manual literalmente, alinhar essa decisao com o professor.
 
----
+## Funcionalidades
 
-## 🛠️ Tecnologias Utilizadas
+- Listagem de modelos carregados do banco.
+- Cadastro, edicao, exclusao e detalhe de modelos.
+- Dashboard com contadores de modelos, favoritos e categorias.
+- Cadastro e login de usuarios.
+- Favoritos salvos por usuario.
+- Relatos de problemas por modelo.
+- Respostas aos relatos.
+- Area "Minha Conta" com favoritos e relatos do usuario logado.
+- Layout responsivo com Bootstrap.
+- CORS configurado para integrar React e Java.
 
-### Frontend
-- React 19.2.4
-- TypeScript 5.9
-- Vite 8.0
-- Bootstrap 5.3
-- Axios 1.6
-- ESLint
+## Arquitetura
 
-### Backend
-- Java 17
-- Spring Boot 3.2
-- Spring Data JPA / Hibernate
-- PostgreSQL 15
-- Maven
+O front-end chama a API com Axios a partir da pasta `src/services`. O back-end recebe as requisicoes nos controllers, aplica regras nos services, acessa o banco pelos repositories JPA e retorna JSON para o React.
 
-### DevOps
-- PostgreSQL (banco relacional)
-- Git / GitHub
+Fluxo resumido:
 
----
+1. React chama `http://localhost:8081/api/modelos`.
+2. Controller Java recebe a requisicao.
+3. Service executa a regra de negocio.
+4. Repository acessa o PostgreSQL via Hibernate/JPA.
+5. A API devolve JSON.
+6. O React atualiza a interface.
 
-## 🚀 Como Instalar e Rodar
+## Estrutura
 
-### Pré-requisitos
-- Node.js (v18+) e npm
-- Java 17 JDK
-- Maven 3.8+
-- PostgreSQL 15+
-- Git
-
-### 1. Configurar Banco de Dados
-
-```bash
-# Conectar ao PostgreSQL
-psql -U postgres
-
-# Criar banco
-CREATE DATABASE porsche_db ENCODING 'UTF8';
-\q
-
-# Executar script SQL
-psql -U postgres -d porsche_db -f database/init.sql
+```text
+porscheExperience/
+  backend/
+    src/main/java/com/porsche/experience/
+      config/
+      controller/
+      dto/
+      model/
+      repository/
+      service/
+    src/main/resources/
+      application.properties
+      data.sql
+    pom.xml
+  database/
+    init.sql
+  public/
+  src/
+    components/
+    pages/
+    services/
+    styles/
+    types/
+  package.json
+  README.md
 ```
 
-### 2. Rodar Backend (Java)
+## Banco de Dados
 
-```bash
+Banco recomendado: PostgreSQL.
+
+Criar o banco:
+
+```sql
+CREATE DATABASE porsche_db ENCODING 'UTF8';
+```
+
+Executar o script:
+
+```cmd
+"C:\Program Files\PostgreSQL\18\bin\psql" -U postgres -d porsche_db -f database/init.sql
+```
+
+Tabelas principais:
+
+- `porsche_models`: modelos Porsche.
+- `cadastros`: usuarios cadastrados.
+- `problem_reports`: relatos/perguntas de problemas.
+- `problem_replies`: respostas aos relatos.
+- `favorite_models`: favoritos por usuario.
+
+O script `database/init.sql` contem chaves primarias, chaves estrangeiras, indices e dados iniciais.
+
+## Configuracao do Back-end
+
+O arquivo `backend/src/main/resources/application.properties` usa variaveis de ambiente para nao versionar senha real:
+
+```properties
+spring.datasource.username=${DB_USERNAME:postgres}
+spring.datasource.password=${DB_PASSWORD:}
+```
+
+No PowerShell, antes de rodar:
+
+```powershell
+$env:DB_USERNAME="postgres"
+$env:DB_PASSWORD="sua_senha_do_postgres"
+```
+
+Rodar back-end:
+
+```cmd
 cd backend
-
-# Configurar application.properties
-# Editar: src/main/resources/application.properties
-# spring.datasource.password=sua_senha_postgres
-
-# Compilar e rodar
 mvn clean spring-boot:run
 ```
 
-Acesse: http://localhost:8080/api/modelos
+API:
 
-### 3. Rodar Frontend (React)
+```text
+http://localhost:8081/api
+```
 
-```bash
-# Voltar para raiz
-cd ..
+## Configuracao do Front-end
 
-# Instalar dependências
+Arquivo `.env.example`:
+
+```env
+VITE_API_URL=http://localhost:8081/api
+```
+
+Rodar front-end:
+
+```cmd
 npm install
-
-# Configurar .env (opcional)
-cp .env.example .env
-
-# Rodar dev server
 npm run dev
 ```
 
-Acesse: http://localhost:5173
+Aplicacao:
 
----
-
-## 📂 Estrutura do Projeto
-
-```
-porscheExperience/
-├── backend/                    # Backend Java
-│   ├── src/main/java/com/porsche/experience/
-│   │   ├── PorscheExperienceApplication.java
-│   │   ├── model/PorscheModel.java
-│   │   ├── repository/PorscheModelRepository.java
-│   │   ├── service/PorscheModelService.java
-│   │   ├── controller/PorscheModelController.java
-│   │   └── config/CorsConfig.java
-│   ├── src/main/resources/application.properties
-│   ├── pom.xml
-│   └── .gitignore
-│
-├── src/                       # Frontend React
-│   ├── components/
-│   ├── pages/
-│   ├── services/
-│   │   ├── api.ts
-│   │   └── porscheModelService.ts
-│   ├── styles/
-│   ├── App.tsx
-│   └── main.tsx
-│
-├── database/
-│   └── init.sql              # Script SQL
-│
-├── public/
-├── .env.example
-├── .gitignore
-├── package.json
-├── tsconfig.json
-└── README.md
+```text
+http://localhost:5173
 ```
 
----
+## Endpoints Principais
 
-## 🔌 Integração Frontend + Backend
+Modelos:
 
-### Fluxo de Comunicação
+- `GET /api/modelos`
+- `GET /api/modelos/{id}`
+- `POST /api/modelos`
+- `PUT /api/modelos/{id}`
+- `DELETE /api/modelos/{id}`
 
-1. **Frontend** faz requisição: `GET /api/modelos`
-2. **Backend** processa no Controller → Service → Repository
-3. **Banco de Dados** retorna dados
-4. **Backend** serializa em JSON
-5. **Frontend** atualiza UI com dados reais
+Usuarios:
 
-### Endpoints Disponíveis
+- `POST /api/cadastros`
+- `POST /api/cadastros/login`
+- `GET /api/cadastros/{id}/favoritos`
+- `POST /api/cadastros/{id}/favoritos`
+- `DELETE /api/cadastros/{id}/favoritos/{modeloId}`
+- `GET /api/cadastros/{id}/relatos`
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/api/modelos` | Lista todos |
-| GET | `/api/modelos/{id}` | Detalhe |
-| POST | `/api/modelos` | Criar |
-| PUT | `/api/modelos/{id}` | Atualizar |
-| DELETE | `/api/modelos/{id}` | Deletar |
+Relatos:
 
----
+- `GET /api/modelos/{modeloId}/relatos`
+- `POST /api/modelos/{modeloId}/relatos`
+- `POST /api/relatos/{relatoId}/respostas`
 
-## 🔐 CORS - Explicação
+## CRUD Obrigatorio
 
-### Por que é necessário?
+CRUD principal: `porsche_models`.
 
-- Frontend: `http://localhost:5173` (Vite)
-- Backend: `http://localhost:8080` (Java)
-- **Origem diferente** → Browser bloqueia por padrão
+- Cadastrar: botao "Novo Modelo" na tela Modelos.
+- Listar: tela Modelos.
+- Carregar para edicao: botao "Editar" em cada card.
+- Atualizar: formulario de edicao na tela Modelos.
+- Excluir: botao "Excluir" em cada card.
+- Atualizacao da interface: o estado do React e atualizado apos cada operacao.
 
-### Como foi configurado?
+## CORS
 
-Arquivo: `backend/src/main/java/com/porsche/experience/config/CorsConfig.java`
+O CORS e necessario porque o front-end roda em `http://localhost:5173` e o back-end em `http://localhost:8081`, ou seja, origens diferentes. Browsers bloqueiam esse tipo de chamada se a API nao permitir explicitamente.
+
+Configuracao em `backend/src/main/java/com/porsche/experience/config/CorsConfig.java`:
 
 ```java
-@Configuration
-public class CorsConfig implements WebMvcConfigurer {
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173")
-                .allowedMethods("GET", "POST", "PUT", "DELETE")
-                .allowCredentials(true)
-                .maxAge(3600);
-    }
-}
+registry.addMapping("/**")
+    .allowedOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:4173")
+    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+    .allowedHeaders("*")
+    .allowCredentials(true);
 ```
 
-### Resultado:
-✅ Frontend consegue acessar a API  
-✅ Headers CORS permitem comunicação  
-✅ React ↔ Java funcionam juntos  
+## Testes Rapidos
 
----
+Listar modelos:
 
-## 🛢️ Banco de Dados
-
-### Tabela Principal: `porsche_models`
-
-```sql
-CREATE TABLE porsche_models (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL UNIQUE,
-    tagline VARCHAR(100),
-    descricao TEXT,
-    potencia_base INTEGER,
-    potencia_turbo INTEGER,
-    velocidade_maxima DECIMAL(5,2),
-    aceleracao_zero_cem DECIMAL(5,2),
-    cambio VARCHAR(50),
-    ano_lancamento INTEGER,
-    imagem VARCHAR(255),
-    badge VARCHAR(100),
-    badge_class VARCHAR(50),
-    especificacoes TEXT,
-    problemas TEXT,
-    faq TEXT,
-    data_criacao TIMESTAMP,
-    data_atualizacao TIMESTAMP,
-    ativo BOOLEAN DEFAULT true
-);
+```cmd
+curl http://localhost:8081/api/modelos
 ```
 
-### Dados Iniciais
+Verificar banco:
 
-6 modelos Porsche inseridos automaticamente:
-- Porsche 911 (1964)
-- Porsche Taycan (2019)
-- Porsche Boxster (2016)
-- Porsche Panamera (2009)
-- Porsche Cayenne (2002)
-- Porsche Macan (2014)
-
----
-
-## 📊 Operações CRUD
-
-### ✅ Create
-- **Tela:** Página de Registro (/register)
-- **Ação:** Preencher formulário e enviar
-- **Endpoint:** `POST /api/modelos`
-
-### ✅ Read
-- **Tela:** Página de Modelos (/models)
-- **Ação:** Listar modelos na grid
-- **Endpoint:** `GET /api/modelos`
-
-### ✅ Update
-- **Tela:** Página de Detalhes (botão editar)
-- **Ação:** Modificar informações
-- **Endpoint:** `PUT /api/modelos/{id}`
-
-### ✅ Delete
-- **Tela:** Página de Modelos (botão deletar)
-- **Ação:** Remover modelo
-- **Endpoint:** `DELETE /api/modelos/{id}`
-
----
-
-## 📸 Screenshots
-
-[Adicione capturas de tela aqui]
-
-- Homepage
-- Listagem de Modelos
-- Detalhes do Modelo
-- Formulário de Cadastro
-- Dashboard
-
----
-
-## 🎬 Vídeo Explicativo
-
-**Link:** [Adicione link do vídeo]
-
-**Conteúdo:**
-- Demonstração da aplicação
-- Explicação do CORS
-- Fluxo de dados frontend-backend
-- Operações CRUD funcionando
-- Arquitetura geral
-
----
-
-## 🧪 Testes
-
-### Backend com cURL
-
-```bash
-# Listar modelos
-curl http://localhost:8080/api/modelos
-
-# Obter modelo
-curl http://localhost:8080/api/modelos/1
-
-# Criar modelo
-curl -X POST http://localhost:8080/api/modelos \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Test","tagline":"Test","potenciaBase":300,"potenciaTurbo":500}'
+```cmd
+"C:\Program Files\PostgreSQL\18\bin\psql" -U postgres -d porsche_db -c "SELECT id, nome, ativo FROM porsche_models ORDER BY id;"
 ```
 
-### Frontend com DevTools
+Ver relatos:
 
-```javascript
-// Console do navegador (F12)
-fetch('http://localhost:8080/api/modelos')
-  .then(r => r.json())
-  .then(d => console.log(d))
+```cmd
+"C:\Program Files\PostgreSQL\18\bin\psql" -U postgres -d porsche_db -c "SELECT id, porsche_model_id, cadastro_id, titulo FROM problem_reports ORDER BY id DESC;"
 ```
 
----
+## Prints da Aplicacao
 
-## 🐛 Troubleshooting
+Adicionar no README antes da entrega:
 
-| Erro | Solução |
-|------|---------|
-| "Cannot GET /api/modelos" | Rodar backend: `mvn spring-boot:run` |
-| CORS Error | Verificar se origin está em CorsConfig |
-| "Connection refused:5432" | Iniciar PostgreSQL |
-| "porsche_db não existe" | Executar: `psql -U postgres -d postgres -f database/init.sql` |
+- Home.
+- Listagem de modelos.
+- Cadastro/Login.
+- Minha Conta.
+- Detalhe do modelo com relatos.
+- CRUD de modelos.
 
----
+## Video Explicativo
 
-## 📦 Build Produção
+Link do video: **adicionar aqui antes da entrega**.
 
-### Backend
-```bash
-cd backend
-mvn clean package
-java -jar target/porsche-experience-api-1.0.0.jar
-```
+Sugestao de roteiro:
 
-### Frontend
-```bash
-npm run build
-# Arquivos em: dist/
-```
+1. Tema da aplicacao.
+2. Front-end React adaptado para consumir API.
+3. Organizacao do back-end Java.
+4. Criacao do banco PostgreSQL.
+5. CRUD de modelos.
+6. Login, favoritos, relatos e respostas.
+7. Comunicacao React + Java via Axios.
+8. Explicacao do CORS.
 
----
+## Observacoes de Entrega
 
-## 📚 Referências
+Nao versionar:
 
-- [Spring Boot Docs](https://spring.io/projects/spring-boot)
-- [React Docs](https://react.dev)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Bootstrap 5](https://getbootstrap.com/docs/5.0/)
-- [PostgreSQL Docs](https://www.postgresql.org/docs/)
-- [CORS MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+- `node_modules/`
+- `dist/`
+- `.env` com senha real
+- `backend/target/`
+- logs e arquivos temporarios
 
----
+Versionar:
 
-## 📄 Licença
-
-Projeto educacional.
-
----
-
-**Status:** ✅ Pronto para execução e entrega
-
-- `src/main.tsx` — ponto de entrada da aplicação e registro global de componentes
-- `src/App.tsx` — navegação entre páginas e estado principal (modelo selecionado, favoritos)
-- `src/data/porscheData.tsx` — dados dos modelos Porsche usados na interface
-- `src/pages/` — páginas principais do site
-- `src/components/` — componentes reutilizáveis como `Navbar`, `Footer`, `ModelCard` e `Dashboard`
-- `src/styles/main.css` — estilos principais da aplicação
-
-## Observações
-
-- Os dados são carregados localmente a partir de `src/data/porscheData.tsx` e não há backend conectado.
-- O formulário de cadastro e envio de problema são protótipos que simulam comportamento no front-end.
-
-## Licença
-
-Este repositório é um protótipo de experiência de usuário e pode ser usado como base para estudos e demonstrações.
+- codigo front-end
+- codigo back-end
+- `database/init.sql`
+- `README.md`
+- `.gitignore`
 

@@ -12,6 +12,15 @@ interface RegisterPageProps {
   onNavegar?: (pagina: string) => void;
 }
 
+const mensagemErroApi = (error: unknown, fallback: string) => {
+  if (typeof error === 'object' && error !== null && 'response' in error) {
+    const response = (error as { response?: { data?: { message?: string } } }).response;
+    return response?.data?.message || fallback;
+  }
+
+  return fallback;
+};
+
 window.RegisterPage = function RegisterPage({ onLogin, onNavegar }: RegisterPageProps) {
   const [modo, setModo] = React.useState<'login' | 'cadastro'>('login');
   const [submitting, setSubmitting] = React.useState(false);
@@ -43,8 +52,8 @@ window.RegisterPage = function RegisterPage({ onLogin, onNavegar }: RegisterPage
       const usuario = await authService.login(loginForm.email, loginForm.senha);
       onLogin?.(usuario);
       onNavegar?.('account');
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Nao foi possivel fazer login. Confira e-mail e senha.');
+    } catch (error: unknown) {
+      alert(mensagemErroApi(error, 'Nao foi possivel fazer login. Confira e-mail e senha.'));
     } finally {
       setSubmitting(false);
     }
@@ -84,8 +93,8 @@ window.RegisterPage = function RegisterPage({ onLogin, onNavegar }: RegisterPage
       onLogin?.(usuario);
       setSuccessMsg(`${usuario.nome}, cadastro criado e login realizado com sucesso.`);
       onNavegar?.('account');
-    } catch (error: any) {
-      alert(error.response?.data?.message || 'Nao foi possivel concluir o cadastro.');
+    } catch (error: unknown) {
+      alert(mensagemErroApi(error, 'Nao foi possivel concluir o cadastro.'));
     } finally {
       setSubmitting(false);
     }
@@ -294,4 +303,3 @@ const fieldFull = (
 );
 
 export default window.RegisterPage;
-

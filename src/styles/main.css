@@ -1092,6 +1092,12 @@ footer img { width: 52px; opacity: 0.7; }
   line-height: 1.65;
 }
 
+.management-form {
+  background: white;
+  border: 1px solid #e8e8e8;
+  padding: 28px;
+}
+
 /* ── ABOUT STRIP ─────────────────────── */
 .about-dark {
   background: var(--dark);

@@ -38,7 +38,7 @@ window.Navbar = function Navbar({ paginaAtual, onNavegar, totalFavoritos, usuari
               src: 'imagens/logo.png',
               alt: 'Porsche',
               className: 'pnav-logo',
-              onError: (e: any) => { (e.target as HTMLImageElement).style.display = 'none'; }
+              onError: (e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; }
             }),
             React.createElement('span', { className: 'pnav-brand-text d-none d-sm-block' }, 'Porsche Experience')
           ),

@@ -6,13 +6,18 @@ import type { PorscheProblema, UsuarioLogado } from './types/porsche';
 
 declare global {
   interface Window {
-    HomePage: any;
-    ModelsPage: any;
-    ModelDetailPage: any;
-    RegisterPage: any;
-    Navbar: any;
-    Footer: any;
-    AccountPage: any;
+    HomePage: unknown;
+    ModelsPage: unknown;
+    ModelDetailPage: unknown;
+    RegisterPage: unknown;
+    Navbar: unknown;
+    Footer: unknown;
+    AccountPage: unknown;
+    ModelCard: unknown;
+    Dashboard: unknown;
+    StatBadge: unknown;
+    ProblemCard: unknown;
+    FaqItem: unknown;
     PORSCHE_DATA: IPorscheModel[];
   }
 }
@@ -190,6 +195,12 @@ function App() {
 
   // ── Render ──
   const renderPagina = () => {
+    const HomePage = window.HomePage as React.ElementType;
+    const ModelsPage = window.ModelsPage as React.ElementType;
+    const ModelDetailPage = window.ModelDetailPage as React.ElementType;
+    const RegisterPage = window.RegisterPage as React.ElementType;
+    const AccountPage = window.AccountPage as React.ElementType;
+
     if (carregando) {
       return React.createElement('div', { className: 'container text-center py-5' },
         React.createElement('div', { className: 'spinner-border text-danger', role: 'status' },
@@ -206,23 +217,25 @@ function App() {
 
     switch (paginaAtual) {
       case 'home':
-        return React.createElement(window.HomePage, {
+        return React.createElement(HomePage, {
           onNavegar: handleNavegar,
           onVerDetalhes: handleVerDetalhes,
           modelos
         });
 
       case 'models':
-        return React.createElement(window.ModelsPage, {
+        return React.createElement(ModelsPage, {
           favoritos,
           onFavoritar: handleFavoritar,
           onVerDetalhes: handleVerDetalhes,
           modelos,
+          onCriar: handleCriarModelo,
+          onAtualizar: handleAtualizarModelo,
           onDeletar: handleDeletarModelo
         });
 
       case 'detail':
-        return React.createElement(window.ModelDetailPage, {
+        return React.createElement(ModelDetailPage, {
           modeloId: modeloSelecionado,
           favoritos,
           onFavoritar: handleFavoritar,
@@ -235,14 +248,14 @@ function App() {
         });
 
       case 'register':
-        return React.createElement(window.RegisterPage, {
+        return React.createElement(RegisterPage, {
           onCriar: handleCriarModelo,
           onNavegar: handleNavegar,
           onLogin: handleLogin
         });
 
       case 'account':
-        return React.createElement(window.AccountPage, {
+        return React.createElement(AccountPage, {
           usuario,
           modelos,
           favoritos,
@@ -252,7 +265,7 @@ function App() {
         });
 
       default:
-        return React.createElement(window.HomePage, {
+        return React.createElement(HomePage, {
           onNavegar: handleNavegar,
           onVerDetalhes: handleVerDetalhes,
           modelos
@@ -261,7 +274,7 @@ function App() {
   };
 
   return React.createElement(React.Fragment, null,
-    React.createElement(window.Navbar, {
+    React.createElement(window.Navbar as React.ElementType, {
       paginaAtual,
       onNavegar: handleNavegar,
       totalFavoritos: favoritos.length
@@ -272,7 +285,7 @@ function App() {
 
     renderPagina(),
 
-    React.createElement(window.Footer, {
+    React.createElement(window.Footer as React.ElementType, {
       onNavegar: handleNavegar
     })
   );

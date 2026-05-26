@@ -348,13 +348,13 @@ porscheExperience/
 ## 🔗 Referências Entre Arquivos
 
 ### Frontend → Backend
-- `App.tsx` → `porscheModelService.ts` → `api.ts` → `http://localhost:8080/api/modelos`
+- `App.tsx` → `porscheModelService.ts` → `api.ts` → `http://localhost:8081/api/modelos`
 
 ### Backend → Database
 - `PorscheModelController.java` → `PorscheModelService.java` → `PorscheModelRepository.java` → `PostgreSQL`
 
 ### Frontend Response
-- `http://localhost:8080/api/modelos` → `porscheModelService.ts` → `App.tsx` (State) → Components (UI)
+- `http://localhost:8081/api/modelos` → `porscheModelService.ts` → `App.tsx` (State) → Components (UI)
 
 ---
 

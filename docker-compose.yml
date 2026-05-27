@@ -6,7 +6,7 @@ services:
     container_name: porsche_db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 0816
+      POSTGRES_PASSWORD: "0816"
       POSTGRES_DB: porsche_db
     ports:
       - "5432:5432"

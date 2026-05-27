@@ -86,32 +86,39 @@ CREATE INDEX IF NOT EXISTS idx_favorites_cadastro ON favorite_models(cadastro_id
 
 INSERT INTO porsche_models
 (nome, tagline, descricao, badge, badge_class, imagem, potencia_base, potencia_turbo,
- velocidade_maxima, aceleracao_zero_cem, cambio, ano_lancamento, especificacoes, ativo)
+ velocidade_maxima, aceleracao_zero_cem, cambio, ano_lancamento, especificacoes,
+ data_criacao, data_atualizacao, ativo)
 VALUES
 ('Porsche 911', 'Icone',
  'Desde 1964, o 911 e a quintessencia do esportivo. Motor boxer traseiro, silhueta inconfundivel e evolucao constante.',
  'Icone', 'badge-icone', 'imagens/911.jpg', 385, 640, 318.00, 3.20, 'PDK', 1964,
- '{"specs":[{"valor":"385+","label":"CV Base"},{"valor":"640","label":"CV Turbo S"},{"valor":"60+","label":"Anos"}]}', true),
+ '{"specs":[{"valor":"385+","label":"CV Base"},{"valor":"640","label":"CV Turbo S"},{"valor":"60+","label":"Anos"}]}',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
 ('Porsche Taycan', 'Eletrico',
  'O esportivo 100% eletrico da Porsche, com arquitetura de 800V e desempenho consistente.',
  'Eletrico', 'badge-eletrico', 'imagens/taycan.jpeg', 761, 761, 260.00, 2.80, '1 velocidade', 2019,
- '{"specs":[{"valor":"761cv","label":"Turbo S"},{"valor":"2.8s","label":"0-100 km/h"},{"valor":"800V","label":"Arquitetura"}]}', true),
+ '{"specs":[{"valor":"761cv","label":"Turbo S"},{"valor":"2.8s","label":"0-100 km/h"},{"valor":"800V","label":"Arquitetura"}]}',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
 ('718 Cayman', 'Esportivo',
  'Motor central, equilibrio preciso e experiencia de conducao pura.',
  'Esportivo', 'badge-esportivo', 'imagens/cayman.jpg', 300, 400, 304.00, 3.40, 'PDK', 2016,
- '{"specs":[{"valor":"400cv","label":"GT4"},{"valor":"3.4s","label":"0-100 km/h"},{"valor":"304","label":"km/h"}]}', true),
+ '{"specs":[{"valor":"400cv","label":"GT4"},{"valor":"3.4s","label":"0-100 km/h"},{"valor":"304","label":"km/h"}]}',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
 ('Porsche Panamera', 'Sedan',
  'Sedan executivo de alto desempenho que combina conforto e performance.',
  'Sedan', 'badge-sedan', 'imagens/panamera.jpg', 400, 700, 315.00, 3.20, 'PDK', 2009,
- '{"specs":[{"valor":"700cv","label":"Turbo S E-Hybrid"},{"valor":"3.2s","label":"0-100 km/h"},{"valor":"315","label":"km/h"}]}', true),
+ '{"specs":[{"valor":"700cv","label":"Turbo S E-Hybrid"},{"valor":"3.2s","label":"0-100 km/h"},{"valor":"315","label":"km/h"}]}',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
 ('718 Spyder RS', 'Esportivo',
  'Versao extrema e descoberta da linha 718, com motor aspirado de 500 cv.',
  'Esportivo', 'badge-esportivo', 'imagens/spyder.jpg', 500, 500, 309.00, 3.40, 'PDK', 2020,
- '{"specs":[{"valor":"500cv","label":"Aspirado"},{"valor":"3.4s","label":"0-100 km/h"},{"valor":"309","label":"km/h"}]}', true),
+ '{"specs":[{"valor":"500cv","label":"Aspirado"},{"valor":"3.4s","label":"0-100 km/h"},{"valor":"309","label":"km/h"}]}',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true),
 ('Porsche Macan', 'SUV',
  'SUV compacto esportivo com praticidade para o dia a dia.',
  'SUV', 'badge-suv', 'imagens/macan.jpg', 261, 639, 260.00, 3.30, 'PDK', 2014,
- '{"specs":[{"valor":"639cv","label":"Eletrico"},{"valor":"3.3s","label":"0-100 km/h"},{"valor":"518","label":"km Autonomia"}]}', true)
+ '{"specs":[{"valor":"639cv","label":"Eletrico"},{"valor":"3.3s","label":"0-100 km/h"},{"valor":"518","label":"km Autonomia"}]}',
+ CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true)
 ON CONFLICT (nome) DO UPDATE SET
   tagline = EXCLUDED.tagline,
   descricao = EXCLUDED.descricao,
@@ -129,12 +136,11 @@ ON CONFLICT (nome) DO UPDATE SET
   data_atualizacao = CURRENT_TIMESTAMP;
 
 INSERT INTO problem_reports
-(porsche_model_id, ano_veiculo, km, categoria, titulo, descricao, solucao, severidade, aprovado)
+(porsche_model_id, ano_veiculo, km, categoria, titulo, descricao, solucao, severidade, aprovado, data_criacao)
 SELECT id, 2006, '80.000 km', 'Motor',
        'Vazamento de oleo nos selos do eixo intermediario (IMS)',
        'Problema comum em modelos 996 e 997.1, podendo causar vazamentos e danos ao motor.',
        'Inspecao preventiva e substituicao do rolamento IMS em oficina especializada.',
-       'Alta', true
+       'Alta', true, CURRENT_TIMESTAMP
 FROM porsche_models WHERE nome = 'Porsche 911'
 ON CONFLICT (porsche_model_id, titulo) DO NOTHING;
-

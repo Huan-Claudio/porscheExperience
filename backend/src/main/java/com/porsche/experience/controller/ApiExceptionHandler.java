@@ -2,6 +2,7 @@ package com.porsche.experience.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,10 +21,18 @@ public class ApiExceptionHandler {
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException exception) {
         String message = exception.getBindingResult().getFieldErrors().stream()
                 .findFirst()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .map(this::formatValidationMessage)
                 .orElse("Dados inválidos");
 
         return ResponseEntity.badRequest().body(Map.of("message", message));
+    }
+
+    private String formatValidationMessage(FieldError error) {
+        if ("email".equals(error.getField()) && "Email".equals(error.getCode())) {
+            return error.getDefaultMessage();
+        }
+
+        return error.getField() + ": " + error.getDefaultMessage();
     }
 }
 

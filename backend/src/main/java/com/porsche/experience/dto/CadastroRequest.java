@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public record CadastroRequest(
         @NotBlank String nome,
         String sobrenome,
-        @NotBlank @Email String email,
+        @NotBlank @Email(message = "Email inválido. Verifique o formato informado.") String email,
         @NotBlank @Size(min = 8) String senha,
         @NotBlank String cidade,
         String estado,

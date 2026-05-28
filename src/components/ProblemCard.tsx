@@ -4,13 +4,15 @@ import type { PorscheProblema } from '../types/porsche';
 interface IProblemCardProps {
   problema: PorscheProblema;
   onResponder?: (relatoId: number, resposta: { autor: string; mensagem: string }) => Promise<void>;
+  onExcluir?: (relatoId: number) => Promise<void>;
 }
 
-window.ProblemCard = function ProblemCard({ problema, onResponder }: IProblemCardProps) {
+window.ProblemCard = function ProblemCard({ problema, onResponder, onExcluir }: IProblemCardProps) {
   const [aberto, setAberto] = React.useState(false);
   const [autor, setAutor] = React.useState('');
   const [mensagem, setMensagem] = React.useState('');
   const [enviando, setEnviando] = React.useState(false);
+  const [excluindo, setExcluindo] = React.useState(false);
 
   const sevMap = {
     Alta: { iconClass: 'severity-alta', badgeClass: 'sev-alta', icon: 'bi-exclamation-triangle-fill' },
@@ -34,6 +36,20 @@ window.ProblemCard = function ProblemCard({ problema, onResponder }: IProblemCar
       setAberto(false);
     } finally {
       setEnviando(false);
+    }
+  };
+
+  const handleExcluir = async () => {
+    if (!onExcluir || !Number.isFinite(relatoId)) return;
+
+    const confirmado = window.confirm('Tem certeza que deseja excluir este relato e todas as respostas dele?');
+    if (!confirmado) return;
+
+    try {
+      setExcluindo(true);
+      await onExcluir(relatoId);
+    } finally {
+      setExcluindo(false);
     }
   };
 
@@ -69,15 +85,24 @@ window.ProblemCard = function ProblemCard({ problema, onResponder }: IProblemCar
             )
           )
         ),
-        onResponder && Number.isFinite(relatoId) && React.createElement('div', { className: 'reply-actions' },
-          React.createElement('button', {
-            type: 'button',
-            className: 'btn-porsche-dark',
-            onClick: () => setAberto(!aberto)
-          },
-            React.createElement('i', { className: aberto ? 'bi bi-x-lg' : 'bi bi-reply' }),
-            aberto ? 'Cancelar' : 'Responder'
-          )
+        (onResponder || onExcluir) && Number.isFinite(relatoId) && React.createElement('div', { className: 'reply-actions d-flex gap-2 flex-wrap' },
+          onResponder && React.createElement('button', {
+              type: 'button',
+              className: 'btn-porsche-dark',
+              onClick: () => setAberto(!aberto)
+            },
+              React.createElement('i', { className: aberto ? 'bi bi-x-lg' : 'bi bi-reply' }),
+              aberto ? 'Cancelar' : 'Responder'
+            ),
+          onExcluir && React.createElement('button', {
+              type: 'button',
+              className: 'btn-porsche problem-delete-button',
+              disabled: excluindo,
+              onClick: handleExcluir
+            },
+              React.createElement('i', { className: excluindo ? 'bi bi-hourglass-split' : 'bi bi-trash' }),
+              excluindo ? 'Excluindo...' : 'Excluir'
+            )
         ),
         aberto && React.createElement('form', { className: 'reply-form', onSubmit: handleResponder },
           React.createElement('div', { className: 'row g-2' },

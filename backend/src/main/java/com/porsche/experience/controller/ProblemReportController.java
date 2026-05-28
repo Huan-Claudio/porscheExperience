@@ -52,4 +52,10 @@ public class ProblemReportController {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(problemReportService.responder(reportId, request));
     }
+
+    @DeleteMapping("/relatos/{reportId}")
+    public ResponseEntity<Void> excluir(@PathVariable Long reportId) {
+        problemReportService.excluir(reportId);
+        return ResponseEntity.noContent().build();
+    }
 }

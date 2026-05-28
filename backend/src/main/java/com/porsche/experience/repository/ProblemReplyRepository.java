@@ -12,5 +12,7 @@ public interface ProblemReplyRepository extends JpaRepository<ProblemReply, Long
     List<ProblemReply> findByProblemReportIdOrderByDataCriacaoAsc(Long problemReportId);
 
     List<ProblemReply> findByProblemReportIdInOrderByDataCriacaoAsc(Collection<Long> problemReportIds);
+
+    void deleteByProblemReportId(Long problemReportId);
 }
 

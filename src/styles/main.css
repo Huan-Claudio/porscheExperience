@@ -713,6 +713,14 @@ img { display: block; max-width: 100%; }
   border-top: 1px solid #eee;
 }
 
+.problem-delete-button {
+  background: #dc3545;
+}
+
+.problem-delete-button:hover {
+  background: #b02a37;
+}
+
 .severity-badge {
   font-size: 10px;
   font-weight: 700;

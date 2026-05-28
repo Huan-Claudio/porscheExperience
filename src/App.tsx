@@ -175,24 +175,6 @@ function App() {
     }
   };
 
-  // Deletar modelo
-  const handleDeletarModelo = async (id: number) => {
-    if (window.confirm('Tem certeza que deseja deletar este modelo?')) {
-      try {
-        await porscheModelService.deletar(id);
-        setModelos(prev => {
-          const atualizados = prev.filter(m => Number(m.id) !== id);
-          window.PORSCHE_DATA = atualizados;
-          return atualizados;
-        });
-        handleNavegar('models');
-      } catch (error) {
-        console.error('Erro ao deletar modelo:', error);
-        alert('Erro ao deletar modelo. Tente novamente.');
-      }
-    }
-  };
-
   // ── Render ──
   const renderPagina = () => {
     const HomePage = window.HomePage as React.ElementType;
@@ -231,8 +213,7 @@ function App() {
           onVerDetalhes: handleVerDetalhes,
           modelos,
           onCriar: handleCriarModelo,
-          onAtualizar: handleAtualizarModelo,
-          onDeletar: handleDeletarModelo
+          onAtualizar: handleAtualizarModelo
         });
 
       case 'detail':
@@ -243,9 +224,9 @@ function App() {
           onVoltar: () => handleNavegar('models'),
           modelos,
           onAtualizar: handleAtualizarModelo,
-          onDeletar: handleDeletarModelo,
           usuario,
-          onRelatoCriado: (relato: PorscheProblema) => setMeusRelatos(prev => [relato, ...prev])
+          onRelatoCriado: (relato: PorscheProblema) => setMeusRelatos(prev => [relato, ...prev]),
+          onRelatoExcluido: (relatoId: number) => setMeusRelatos(prev => prev.filter(relato => Number(relato.id) !== relatoId))
         });
 
       case 'register':

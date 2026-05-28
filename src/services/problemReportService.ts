@@ -34,6 +34,10 @@ export const problemReportService = {
     const response = await api.post<PorscheResposta>(`/relatos/${relatoId}/respostas`, resposta);
     return response.data;
   },
+
+  excluir: async (relatoId: number): Promise<void> => {
+    await api.delete(`/relatos/${relatoId}`);
+  },
 };
 
 export default problemReportService;

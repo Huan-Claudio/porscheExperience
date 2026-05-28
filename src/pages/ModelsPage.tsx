@@ -15,7 +15,6 @@ interface IModelsPageProps {
   onVerDetalhes: (id: string | number) => void;
   onCriar?: (modelo: PorscheModel) => Promise<void>;
   onAtualizar?: (id: number, modelo: PorscheModel) => Promise<void>;
-  onDeletar?: (id: number) => void;
 }
 
 const modeloVazio: PorscheModel = {
@@ -48,7 +47,6 @@ window.ModelsPage = function ModelsPage({
   onVerDetalhes,
   onCriar,
   onAtualizar,
-  onDeletar,
 }: IModelsPageProps) {
   const [formAberto, setFormAberto] = React.useState(false);
   const [editandoId, setEditandoId] = React.useState<number | null>(null);
@@ -175,13 +173,6 @@ window.ModelsPage = function ModelsPage({
                       React.createElement('button', { className: 'btn-porsche-dark flex-grow-1', onClick: () => abrirEdicao(modelo) },
                         React.createElement('i', { className: 'bi bi-pencil' }),
                         ' Editar'
-                      ),
-                      React.createElement('button', {
-                        className: 'btn-porsche flex-grow-1',
-                        onClick: () => onDeletar?.(Number(modelo.id)),
-                      },
-                        React.createElement('i', { className: 'bi bi-trash' }),
-                        ' Excluir'
                       )
                     )
                   )

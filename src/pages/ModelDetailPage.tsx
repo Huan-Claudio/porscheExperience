@@ -33,9 +33,9 @@ interface IModelDetailPageProps {
   onFavoritar: (id: string | number) => void;
   onVoltar: () => void;
   onAtualizar?: (id: number, modelo: PorscheModel) => void;
-  onDeletar?: (id: number) => void;
   usuario?: UsuarioLogado | null;
   onRelatoCriado?: (relato: PorscheProblema) => void;
+  onRelatoExcluido?: (relatoId: number) => void;
 }
 
 const mensagemErroApi = (error: unknown, fallback: string) => {
@@ -49,7 +49,7 @@ const mensagemErroApi = (error: unknown, fallback: string) => {
 
 const QUILOMETRAGEM_MAXIMA = 2000000;
 
-function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, usuario, onRelatoCriado }: IModelDetailPageProps) {
+function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, usuario, onRelatoCriado, onRelatoExcluido }: IModelDetailPageProps) {
   const [reportSuccess, setReportSuccess] = React.useState(false);
   const [formData, setFormData] = React.useState({
     anoVeiculo: '',
@@ -183,6 +183,16 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
         ? { ...relato, respostas: [...(relato.respostas || []), novaResposta] }
         : relato
     ));
+  };
+
+  const handleExcluirRelato = async (relatoId: number) => {
+    try {
+      await problemReportService.excluir(relatoId);
+      setRelatos(prev => prev.filter(relato => Number(relato.id) !== relatoId));
+      onRelatoExcluido?.(relatoId);
+    } catch (error: unknown) {
+      alert(mensagemErroApi(error, 'NÃ£o foi possÃ­vel excluir o relato. Verifique o backend e tente novamente.'));
+    }
   };
 
   const anos = [];
@@ -354,7 +364,8 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
             React.createElement(window.ProblemCard as React.ElementType, {
               key: p.id || i,
               problema: p,
-              onResponder: handleResponderRelato
+              onResponder: handleResponderRelato,
+              onExcluir: handleExcluirRelato
             })
           ),
 

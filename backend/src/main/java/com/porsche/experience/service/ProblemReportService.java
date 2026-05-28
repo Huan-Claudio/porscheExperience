@@ -114,6 +114,15 @@ public class ProblemReportService {
         return ProblemReplyResponse.from(problemReplyRepository.save(reply));
     }
 
+    public void excluir(Long reportId) {
+        if (!problemReportRepository.existsById(reportId)) {
+            throw new IllegalArgumentException("Relato de problema não encontrado");
+        }
+
+        problemReplyRepository.deleteByProblemReportId(reportId);
+        problemReportRepository.deleteById(reportId);
+    }
+
     private String normalizarSeveridade(String severidade) {
         if (severidade == null || severidade.isBlank()) return "Média";
 

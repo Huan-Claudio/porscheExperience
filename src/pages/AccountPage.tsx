@@ -7,6 +7,7 @@ interface AccountPageProps {
   favoritos: string[];
   relatos: PorscheProblema[];
   onNavegar: (pagina: string) => void;
+  onLogout: () => void;
   onVerDetalhes: (id: string | number) => void;
 }
 
@@ -16,6 +17,7 @@ window.AccountPage = function AccountPage({
   favoritos,
   relatos,
   onNavegar,
+  onLogout,
   onVerDetalhes,
 }: AccountPageProps) {
   if (!usuario) {
@@ -42,6 +44,13 @@ window.AccountPage = function AccountPage({
     ),
 
     React.createElement('div', { className: 'container py-5 py-lg-6' },
+      React.createElement('div', { className: 'account-actions' },
+        React.createElement('button', { className: 'btn-porsche account-logout-button', onClick: onLogout },
+          React.createElement('i', { className: 'bi bi-box-arrow-right' }),
+          ' Sair da Conta'
+        )
+      ),
+
       React.createElement('div', { className: 'row g-4' },
         React.createElement('div', { className: 'col-lg-4' },
           React.createElement('div', { className: 'account-panel' },

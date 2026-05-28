@@ -4,7 +4,7 @@
 // ============================================================
 
 import * as React from 'react';
-import type { PorscheModel } from '../types/porsche';
+import type { PorscheModel, UsuarioLogado } from '../types/porsche';
 
 declare global {
   interface Window {
@@ -16,13 +16,17 @@ interface IHomePageProps {
   onNavegar: (pagina: string) => void;
   onVerDetalhes: (id: string | number) => void;
   modelos: PorscheModel[];
+  usuario: UsuarioLogado | null;
 }
 
-window.HomePage = function HomePage({ onNavegar, onVerDetalhes, modelos }: IHomePageProps) {
+window.HomePage = function HomePage({ onNavegar, onVerDetalhes, modelos, usuario }: IHomePageProps) {
   const detalhePorSlug = (slug: string) => {
     const modelo = modelos.find((item) => item.slug === slug || String(item.id) === slug);
     onVerDetalhes(modelo?.id ?? slug);
   };
+  const destinoConta = usuario ? 'account' : 'register';
+  const textoConta = usuario ? 'Minha Conta' : 'Cadastre-se';
+
   const destaques = [
     { icon: 'bi-speedometer2', titulo: 'Dinâmica Boxer', desc: 'Motor Boxer com cilindros horizontais opostos posiciona o peso baixo no chassi, criando precisão cirúrgica e equilíbrio perfeito.' },
     { icon: 'bi-calendar-check', titulo: 'Versatilidade Real', desc: 'Um 911 vai ao track day no sábado e ao supermercado na segunda. Confiabilidade alemã para uso diário sem abrir mão da performance.' },
@@ -63,8 +67,8 @@ window.HomePage = function HomePage({ onNavegar, onVerDetalhes, modelos }: IHome
                 React.createElement('button', { className: 'btn-porsche animate-up delay-2', onClick: () => onNavegar('models') },
                   'Ver Modelos', React.createElement('i', { className: 'bi bi-arrow-right' })
                 ),
-                React.createElement('button', { className: 'btn-porsche-outline animate-up delay-3', onClick: () => onNavegar('register') },
-                  'Cadastre-se'
+                React.createElement('button', { className: 'btn-porsche-outline animate-up delay-3', onClick: () => onNavegar(destinoConta) },
+                  textoConta
                 )
               )
             )

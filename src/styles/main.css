@@ -1040,6 +1040,21 @@ footer img { width: 52px; opacity: 0.7; }
   margin-bottom: 8px;
 }
 
+.account-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
+
+.account-logout-button {
+  background: #dc3545;
+  border-radius: 8px;
+}
+
+.account-logout-button:hover {
+  background: #b02a37;
+}
+
 .account-section-title {
   font-family: var(--font-display);
   font-size: 1.6rem;

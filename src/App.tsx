@@ -135,12 +135,12 @@ function App() {
     authService.salvarSessao(usuarioLogado);
   };
 
-  const handleLogout = () => {
+  const handleLogout = (paginaDestino = 'home') => {
     authService.logout();
     setUsuario(null);
     setFavoritos([]);
     setMeusRelatos([]);
-    handleNavegar('home');
+    handleNavegar(paginaDestino);
   };
 
   // Criar novo modelo
@@ -220,7 +220,8 @@ function App() {
         return React.createElement(HomePage, {
           onNavegar: handleNavegar,
           onVerDetalhes: handleVerDetalhes,
-          modelos
+          modelos,
+          usuario
         });
 
       case 'models':
@@ -261,6 +262,7 @@ function App() {
           favoritos,
           relatos: meusRelatos,
           onNavegar: handleNavegar,
+          onLogout: () => handleLogout('register'),
           onVerDetalhes: handleVerDetalhes
         });
 
@@ -268,7 +270,8 @@ function App() {
         return React.createElement(HomePage, {
           onNavegar: handleNavegar,
           onVerDetalhes: handleVerDetalhes,
-          modelos
+          modelos,
+          usuario
         });
     }
   };

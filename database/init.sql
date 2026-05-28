@@ -53,10 +53,11 @@ CREATE TABLE IF NOT EXISTS problem_reports (
     severidade VARCHAR(20) NOT NULL DEFAULT 'Media',
     aprovado BOOLEAN NOT NULL DEFAULT true,
     data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uk_problem_report_model_title UNIQUE (porsche_model_id, titulo),
     CONSTRAINT fk_problem_model FOREIGN KEY (porsche_model_id) REFERENCES porsche_models(id) ON DELETE CASCADE,
     CONSTRAINT fk_problem_cadastro FOREIGN KEY (cadastro_id) REFERENCES cadastros(id) ON DELETE SET NULL
 );
+
+ALTER TABLE problem_reports DROP CONSTRAINT IF EXISTS uk_problem_report_model_title;
 
 CREATE TABLE IF NOT EXISTS problem_replies (
     id BIGSERIAL PRIMARY KEY,
@@ -143,4 +144,9 @@ SELECT id, 2006, '80.000 km', 'Motor',
        'Inspecao preventiva e substituicao do rolamento IMS em oficina especializada.',
        'Alta', true, CURRENT_TIMESTAMP
 FROM porsche_models WHERE nome = 'Porsche 911'
-ON CONFLICT (porsche_model_id, titulo) DO NOTHING;
+AND NOT EXISTS (
+    SELECT 1
+    FROM problem_reports pr
+    WHERE pr.porsche_model_id = porsche_models.id
+      AND pr.titulo = 'Vazamento de oleo nos selos do eixo intermediario (IMS)'
+);

@@ -12,12 +12,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(
-        name = "problem_reports",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_problem_report_model_title", columnNames = {"porsche_model_id", "titulo"})
-        }
-)
+@Table(name = "problem_reports")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

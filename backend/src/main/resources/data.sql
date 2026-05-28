@@ -1,3 +1,5 @@
+ALTER TABLE problem_reports DROP CONSTRAINT IF EXISTS uk_problem_report_model_title;
+
 INSERT INTO porsche_models
 (nome, tagline, descricao, badge, badge_class, imagem, potencia_base, potencia_turbo,
  velocidade_maxima, aceleracao_zero_cem, cambio, ano_lancamento, especificacoes,
@@ -57,11 +59,11 @@ SELECT id, 2006, '80.000 km', 'Motor',
        'Inspeção preventiva e substituição do rolamento IMS em oficina especializada.',
        'Alta', true, CURRENT_TIMESTAMP
 FROM porsche_models WHERE nome = 'Porsche 911'
-ON CONFLICT (porsche_model_id, titulo) DO UPDATE SET
-  descricao = EXCLUDED.descricao,
-  solucao = EXCLUDED.solucao,
-  severidade = EXCLUDED.severidade,
-  aprovado = true;
+AND NOT EXISTS (
+  SELECT 1 FROM problem_reports pr
+  WHERE pr.porsche_model_id = porsche_models.id
+    AND pr.titulo = 'Vazamento de óleo nos selos do eixo intermediário (IMS)'
+);
 
 INSERT INTO problem_reports
 (porsche_model_id, ano_veiculo, km, categoria, titulo, descricao, solucao, severidade, aprovado, data_criacao)
@@ -71,11 +73,11 @@ SELECT id, 2021, '22.000 km', 'Suspensão',
        'Atualização de componentes conforme boletim técnico e revisão em concessionária.',
        'Baixa', true, CURRENT_TIMESTAMP
 FROM porsche_models WHERE nome = 'Porsche Taycan'
-ON CONFLICT (porsche_model_id, titulo) DO UPDATE SET
-  descricao = EXCLUDED.descricao,
-  solucao = EXCLUDED.solucao,
-  severidade = EXCLUDED.severidade,
-  aprovado = true;
+AND NOT EXISTS (
+  SELECT 1 FROM problem_reports pr
+  WHERE pr.porsche_model_id = porsche_models.id
+    AND pr.titulo = 'Ruído anormal na suspensão traseira em baixas velocidades'
+);
 
 INSERT INTO problem_reports
 (porsche_model_id, ano_veiculo, km, categoria, titulo, descricao, solucao, severidade, aprovado, data_criacao)
@@ -85,11 +87,11 @@ SELECT id, 2018, '45.000 km', 'Motor',
        'Verificar coxins, suportes do motor e atualização de calibração.',
        'Baixa', true, CURRENT_TIMESTAMP
 FROM porsche_models WHERE nome = '718 Cayman'
-ON CONFLICT (porsche_model_id, titulo) DO UPDATE SET
-  descricao = EXCLUDED.descricao,
-  solucao = EXCLUDED.solucao,
-  severidade = EXCLUDED.severidade,
-  aprovado = true;
+AND NOT EXISTS (
+  SELECT 1 FROM problem_reports pr
+  WHERE pr.porsche_model_id = porsche_models.id
+    AND pr.titulo = 'Vibração no motor 2.0T em baixas rotações'
+);
 
 INSERT INTO problem_reports
 (porsche_model_id, ano_veiculo, km, categoria, titulo, descricao, solucao, severidade, aprovado, data_criacao)
@@ -99,11 +101,11 @@ SELECT id, 2016, '52.000 km', 'Freios',
        'Monitorar espessura nas revisões e usar componentes compatíveis com o uso do veículo.',
        'Média', true, CURRENT_TIMESTAMP
 FROM porsche_models WHERE nome = 'Porsche Macan'
-ON CONFLICT (porsche_model_id, titulo) DO UPDATE SET
-  descricao = EXCLUDED.descricao,
-  solucao = EXCLUDED.solucao,
-  severidade = EXCLUDED.severidade,
-  aprovado = true;
+AND NOT EXISTS (
+  SELECT 1 FROM problem_reports pr
+  WHERE pr.porsche_model_id = porsche_models.id
+    AND pr.titulo = 'Desgaste prematuro dos freios dianteiros'
+);
 
 INSERT INTO problem_reports
 (porsche_model_id, ano_veiculo, km, categoria, titulo, descricao, solucao, severidade, aprovado, data_criacao)
@@ -113,11 +115,11 @@ SELECT id, 2014, '86.000 km', 'Motor',
        'Inspeção detalhada do conjunto do virabrequim e substituição dos retentores afetados.',
        'Alta', true, CURRENT_TIMESTAMP
 FROM porsche_models WHERE nome = 'Porsche Panamera'
-ON CONFLICT (porsche_model_id, titulo) DO UPDATE SET
-  descricao = EXCLUDED.descricao,
-  solucao = EXCLUDED.solucao,
-  severidade = EXCLUDED.severidade,
-  aprovado = true;
+AND NOT EXISTS (
+  SELECT 1 FROM problem_reports pr
+  WHERE pr.porsche_model_id = porsche_models.id
+    AND pr.titulo = 'Vazamento de óleo no motor V8'
+);
 
 INSERT INTO problem_reports
 (porsche_model_id, ano_veiculo, km, categoria, titulo, descricao, solucao, severidade, aprovado, data_criacao)
@@ -127,8 +129,8 @@ SELECT id, 2024, '3.000 km', 'Carroceria',
        'Treinar o processo em ambiente seco e manter o mecanismo limpo e ajustado.',
        'Baixa', true, CURRENT_TIMESTAMP
 FROM porsche_models WHERE nome = '718 Spyder RS'
-ON CONFLICT (porsche_model_id, titulo) DO UPDATE SET
-  descricao = EXCLUDED.descricao,
-  solucao = EXCLUDED.solucao,
-  severidade = EXCLUDED.severidade,
-  aprovado = true;
+AND NOT EXISTS (
+  SELECT 1 FROM problem_reports pr
+  WHERE pr.porsche_model_id = porsche_models.id
+    AND pr.titulo = 'Capota manual de operação complexa'
+);

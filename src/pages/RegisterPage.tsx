@@ -21,10 +21,19 @@ const mensagemErroApi = (error: unknown, fallback: string) => {
   return fallback;
 };
 
+const formatDateInput = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
 window.RegisterPage = function RegisterPage({ onLogin, onNavegar }: RegisterPageProps) {
   const [modo, setModo] = React.useState<'login' | 'cadastro'>('login');
   const [submitting, setSubmitting] = React.useState(false);
   const [successMsg, setSuccessMsg] = React.useState('');
+  const dataMaximaNascimento = formatDateInput(new Date());
   const [loginForm, setLoginForm] = React.useState({ email: '', senha: '' });
   const [form, setForm] = React.useState<RegistroForm>({
     nome: '',
@@ -197,7 +206,14 @@ window.RegisterPage = function RegisterPage({ onLogin, onNavegar }: RegisterPage
                         )
                       )
                     ),
-                    fieldFull('Data de nascimento', form.dataNasc, (value) => setForm({ ...form, dataNasc: value }), '', 'date'),
+                    fieldFull(
+                      'Data de nascimento',
+                      form.dataNasc,
+                      (value) => setForm({ ...form, dataNasc: value }),
+                      '',
+                      'date',
+                      { min: '1900-01-01', max: dataMaximaNascimento }
+                    ),
                     React.createElement('div', { className: 'mb-3' },
                       React.createElement('label', { className: 'form-label' }, 'Modelo Porsche favorito'),
                       React.createElement('select', {
@@ -290,7 +306,8 @@ const fieldFull = (
   value: string,
   onChange: (value: string) => void,
   placeholder = '',
-  type = 'text'
+  type = 'text',
+  inputProps: React.InputHTMLAttributes<HTMLInputElement> = {}
 ) => React.createElement('div', { className: 'mb-3' },
   React.createElement('label', { className: 'form-label' }, label),
   React.createElement('input', {
@@ -299,6 +316,7 @@ const fieldFull = (
     placeholder,
     value,
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value),
+    ...inputProps,
   })
 );
 

@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -17,10 +18,16 @@ import java.util.List;
 @Transactional
 public class CadastroService {
 
+    private static final LocalDate DATA_NASCIMENTO_MINIMA = LocalDate.of(1900, 1, 1);
+    private static final String DATA_NASCIMENTO_INVALIDA =
+            "Data de nascimento inválida. Informe uma data entre 01/01/1900 e a data atual.";
+
     private final CadastroRepository cadastroRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public CadastroResponse criar(CadastroRequest request) {
+        validarDataNascimento(request.dataNasc());
+
         if (cadastroRepository.existsByEmailIgnoreCase(request.email())) {
             throw new IllegalArgumentException("E-mail já cadastrado");
         }
@@ -39,6 +46,16 @@ public class CadastroService {
                 .build();
 
         return CadastroResponse.from(cadastroRepository.save(cadastro));
+    }
+
+    private void validarDataNascimento(LocalDate dataNasc) {
+        if (dataNasc == null) {
+            return;
+        }
+
+        if (dataNasc.isBefore(DATA_NASCIMENTO_MINIMA) || dataNasc.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException(DATA_NASCIMENTO_INVALIDA);
+        }
     }
 
     @Transactional(readOnly = true)

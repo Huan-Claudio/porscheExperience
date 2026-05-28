@@ -47,6 +47,8 @@ const mensagemErroApi = (error: unknown, fallback: string) => {
   return fallback;
 };
 
+const QUILOMETRAGEM_MAXIMA = 2000000;
+
 function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, usuario, onRelatoCriado }: IModelDetailPageProps) {
   const [reportSuccess, setReportSuccess] = React.useState(false);
   const [formData, setFormData] = React.useState({
@@ -98,10 +100,27 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
 
   const favoritado = favoritos.includes(String(modelo.id));
 
+  const handleKmChange = (value: string) => {
+    if (!/^\d*$/.test(value)) {
+      return;
+    }
+
+    if (value && Number(value) > QUILOMETRAGEM_MAXIMA) {
+      return;
+    }
+
+    setFormData({ ...formData, km: value });
+  };
+
   const handleReport = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.anoVeiculo || !formData.categoria || !formData.titulo || !formData.descricao) {
       alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    if (formData.km && (!/^\d+$/.test(formData.km) || Number(formData.km) > QUILOMETRAGEM_MAXIMA)) {
+      alert('Informe uma quilometragem válida entre 0 e 2.000.000, sem casas decimais.');
       return;
     }
 
@@ -116,7 +135,7 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
         porscheModelId: modeloNumerico,
         cadastroId: usuario?.id,
         anoVeiculo: Number(formData.anoVeiculo),
-        km: formData.km,
+        km: formData.km ? `${formData.km} km` : '',
         categoria: formData.categoria,
         titulo: formData.titulo,
         descricao: formData.descricao,
@@ -404,9 +423,13 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
                       React.createElement('input', {
                         type: 'text',
                         className: 'form-control',
-                        placeholder: 'Ex: 45.000 km',
+                        inputMode: 'numeric',
+                        pattern: '[0-9]*',
+                        min: 0,
+                        max: QUILOMETRAGEM_MAXIMA,
+                        placeholder: 'Ex: 45000',
                         value: formData.km,
-                        onChange: e => setFormData({...formData, km: e.target.value})
+                        onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleKmChange(e.target.value)
                       })
                     )
                   ),

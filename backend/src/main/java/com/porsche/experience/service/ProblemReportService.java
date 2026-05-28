@@ -22,6 +22,10 @@ import java.util.stream.Collectors;
 @Transactional
 public class ProblemReportService {
 
+    private static final int QUILOMETRAGEM_MAXIMA = 2_000_000;
+    private static final String QUILOMETRAGEM_INVALIDA =
+            "Quilometragem inválida. Informe um valor entre 0 e 2.000.000, sem casas decimais.";
+
     private final ProblemReportRepository problemReportRepository;
     private final ProblemReplyRepository problemReplyRepository;
     private final PorscheModelRepository porscheModelRepository;
@@ -42,6 +46,8 @@ public class ProblemReportService {
     }
 
     public ProblemReportResponse criar(ProblemReportRequest request) {
+        validarQuilometragem(request.km());
+
         if (!porscheModelRepository.existsById(request.porscheModelId())) {
             throw new IllegalArgumentException("Modelo Porsche não encontrado");
         }
@@ -61,6 +67,22 @@ public class ProblemReportService {
                 .build();
 
         return ProblemReportResponse.from(problemReportRepository.save(report), List.of());
+    }
+
+    private void validarQuilometragem(String km) {
+        if (km == null || km.isBlank()) {
+            return;
+        }
+
+        String valor = km.trim().replaceFirst("\\s*[kK][mM]$", "");
+        if (!valor.matches("\\d+")) {
+            throw new IllegalArgumentException(QUILOMETRAGEM_INVALIDA);
+        }
+
+        if (valor.length() > String.valueOf(QUILOMETRAGEM_MAXIMA).length()
+                || Integer.parseInt(valor) > QUILOMETRAGEM_MAXIMA) {
+            throw new IllegalArgumentException(QUILOMETRAGEM_INVALIDA);
+        }
     }
 
     @Transactional(readOnly = true)

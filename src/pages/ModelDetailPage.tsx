@@ -32,9 +32,9 @@ interface IModelDetailPageProps {
   modelos: PorscheModel[];
   onFavoritar: (id: string | number) => void;
   onVoltar: () => void;
-  onAtualizar?: (id: number, modelo: PorscheModel) => void;
   usuario?: UsuarioLogado | null;
   onRelatoCriado?: (relato: PorscheProblema) => void;
+  onRelatoAtualizado?: (relato: PorscheProblema) => void;
   onRelatoExcluido?: (relatoId: number) => void;
 }
 
@@ -49,7 +49,7 @@ const mensagemErroApi = (error: unknown, fallback: string) => {
 
 const QUILOMETRAGEM_MAXIMA = 2000000;
 
-function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, usuario, onRelatoCriado, onRelatoExcluido }: IModelDetailPageProps) {
+function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, usuario, onRelatoCriado, onRelatoAtualizado, onRelatoExcluido }: IModelDetailPageProps) {
   const [reportSuccess, setReportSuccess] = React.useState(false);
   const [formData, setFormData] = React.useState({
     anoVeiculo: '',
@@ -183,6 +183,50 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
         ? { ...relato, respostas: [...(relato.respostas || []), novaResposta] }
         : relato
     ));
+  };
+
+  const handleAtualizarRelato = async (
+    relatoId: number,
+    dadosRelato: {
+      anoVeiculo?: number;
+      km?: string;
+      categoria: string;
+      titulo: string;
+      descricao: string;
+      solucao?: string;
+      email?: string;
+    }
+  ) => {
+    const relatoAtual = relatos.find((relato) => Number(relato.id) === relatoId);
+    const modeloNumerico = Number(relatoAtual?.porscheModelId ?? modelo.id);
+
+    if (!Number.isFinite(modeloNumerico)) {
+      alert('NÃ£o foi possÃ­vel identificar o modelo deste relato.');
+      return;
+    }
+
+    try {
+      const relatoAtualizado = await problemReportService.atualizar(relatoId, {
+        porscheModelId: modeloNumerico,
+        cadastroId: relatoAtual?.cadastroId,
+        anoVeiculo: dadosRelato.anoVeiculo,
+        km: dadosRelato.km,
+        categoria: dadosRelato.categoria,
+        titulo: dadosRelato.titulo,
+        descricao: dadosRelato.descricao,
+        solucao: dadosRelato.solucao,
+        email: dadosRelato.email,
+        severidade: dadosRelato.categoria === 'Motor' || dadosRelato.categoria === 'Freios' ? 'Alta' : 'MÃ©dia',
+      });
+
+      setRelatos(prev => prev.map(relato =>
+        Number(relato.id) === relatoId ? relatoAtualizado : relato
+      ));
+      onRelatoAtualizado?.(relatoAtualizado);
+    } catch (error: unknown) {
+      alert(mensagemErroApi(error, 'NÃ£o foi possÃ­vel atualizar o relato. Verifique o backend e tente novamente.'));
+      throw error;
+    }
   };
 
   const handleExcluirRelato = async (relatoId: number) => {
@@ -365,6 +409,7 @@ function ModelDetailPage({ modeloId, favoritos, modelos, onFavoritar, onVoltar, 
               key: p.id || i,
               problema: p,
               onResponder: handleResponderRelato,
+              onEditar: handleAtualizarRelato,
               onExcluir: handleExcluirRelato
             })
           ),

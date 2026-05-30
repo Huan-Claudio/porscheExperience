@@ -4,15 +4,49 @@ import type { PorscheProblema } from '../types/porsche';
 interface IProblemCardProps {
   problema: PorscheProblema;
   onResponder?: (relatoId: number, resposta: { autor: string; mensagem: string }) => Promise<void>;
+  onEditar?: (relatoId: number, relato: RelatoEditPayload) => Promise<void>;
   onExcluir?: (relatoId: number) => Promise<void>;
 }
 
-window.ProblemCard = function ProblemCard({ problema, onResponder, onExcluir }: IProblemCardProps) {
+interface RelatoEditPayload {
+  anoVeiculo?: number;
+  km?: string;
+  categoria: string;
+  titulo: string;
+  descricao: string;
+  solucao?: string;
+  email?: string;
+}
+
+window.ProblemCard = function ProblemCard({ problema, onResponder, onEditar, onExcluir }: IProblemCardProps) {
   const [aberto, setAberto] = React.useState(false);
+  const [editando, setEditando] = React.useState(false);
   const [autor, setAutor] = React.useState('');
   const [mensagem, setMensagem] = React.useState('');
   const [enviando, setEnviando] = React.useState(false);
+  const [salvandoEdicao, setSalvandoEdicao] = React.useState(false);
   const [excluindo, setExcluindo] = React.useState(false);
+  const [formEdicao, setFormEdicao] = React.useState({
+    anoVeiculo: problema.anoVeiculo ? String(problema.anoVeiculo) : '',
+    km: problema.km || '',
+    categoria: problema.categoria || '',
+    titulo: problema.titulo || '',
+    descricao: problema.descricao || '',
+    solucao: problema.solucao || '',
+    email: problema.email || '',
+  });
+
+  React.useEffect(() => {
+    setFormEdicao({
+      anoVeiculo: problema.anoVeiculo ? String(problema.anoVeiculo) : '',
+      km: problema.km || '',
+      categoria: problema.categoria || '',
+      titulo: problema.titulo || '',
+      descricao: problema.descricao || '',
+      solucao: problema.solucao || '',
+      email: problema.email || '',
+    });
+  }, [problema]);
 
   const sevMap = {
     Alta: { iconClass: 'severity-alta', badgeClass: 'sev-alta', icon: 'bi-exclamation-triangle-fill' },
@@ -53,6 +87,32 @@ window.ProblemCard = function ProblemCard({ problema, onResponder, onExcluir }: 
     }
   };
 
+  const handleEditar = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!onEditar || !Number.isFinite(relatoId)) return;
+
+    if (!formEdicao.categoria.trim() || !formEdicao.titulo.trim() || !formEdicao.descricao.trim()) {
+      alert('Preencha categoria, titulo e descricao.');
+      return;
+    }
+
+    try {
+      setSalvandoEdicao(true);
+      await onEditar(relatoId, {
+        anoVeiculo: formEdicao.anoVeiculo ? Number(formEdicao.anoVeiculo) : undefined,
+        km: formEdicao.km.trim(),
+        categoria: formEdicao.categoria.trim(),
+        titulo: formEdicao.titulo.trim(),
+        descricao: formEdicao.descricao.trim(),
+        solucao: formEdicao.solucao.trim(),
+        email: formEdicao.email.trim(),
+      });
+      setEditando(false);
+    } finally {
+      setSalvandoEdicao(false);
+    }
+  };
+
   return (
     React.createElement('div', { className: 'problem-card' },
       React.createElement('div', { className: `problem-icon ${sev.iconClass}` },
@@ -85,7 +145,7 @@ window.ProblemCard = function ProblemCard({ problema, onResponder, onExcluir }: 
             )
           )
         ),
-        (onResponder || onExcluir) && Number.isFinite(relatoId) && React.createElement('div', { className: 'reply-actions d-flex gap-2 flex-wrap' },
+        (onResponder || onEditar || onExcluir) && Number.isFinite(relatoId) && React.createElement('div', { className: 'reply-actions d-flex gap-2 flex-wrap' },
           onResponder && React.createElement('button', {
               type: 'button',
               className: 'btn-porsche-dark',
@@ -93,6 +153,17 @@ window.ProblemCard = function ProblemCard({ problema, onResponder, onExcluir }: 
             },
               React.createElement('i', { className: aberto ? 'bi bi-x-lg' : 'bi bi-reply' }),
               aberto ? 'Cancelar' : 'Responder'
+            ),
+          onEditar && React.createElement('button', {
+              type: 'button',
+              className: 'btn-porsche-dark',
+              onClick: () => {
+                setEditando(!editando);
+                if (!editando) setAberto(false);
+              }
+            },
+              React.createElement('i', { className: editando ? 'bi bi-x-lg' : 'bi bi-pencil' }),
+              editando ? 'Cancelar Edicao' : 'Editar'
             ),
           onExcluir && React.createElement('button', {
               type: 'button',
@@ -103,6 +174,78 @@ window.ProblemCard = function ProblemCard({ problema, onResponder, onExcluir }: 
               React.createElement('i', { className: excluindo ? 'bi bi-hourglass-split' : 'bi bi-trash' }),
               excluindo ? 'Excluindo...' : 'Excluir'
             )
+        ),
+        editando && React.createElement('form', { className: 'reply-form', onSubmit: handleEditar },
+          React.createElement('div', { className: 'row g-2' },
+            React.createElement('div', { className: 'col-md-4' },
+              React.createElement('label', { className: 'form-label' }, 'Ano do Veiculo'),
+              React.createElement('input', {
+                type: 'number',
+                className: 'form-control',
+                value: formEdicao.anoVeiculo,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) => setFormEdicao({ ...formEdicao, anoVeiculo: e.target.value })
+              })
+            ),
+            React.createElement('div', { className: 'col-md-4' },
+              React.createElement('label', { className: 'form-label' }, 'Quilometragem'),
+              React.createElement('input', {
+                className: 'form-control',
+                value: formEdicao.km,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) => setFormEdicao({ ...formEdicao, km: e.target.value })
+              })
+            ),
+            React.createElement('div', { className: 'col-md-4' },
+              React.createElement('label', { className: 'form-label' }, 'Categoria'),
+              React.createElement('select', {
+                className: 'form-select',
+                value: formEdicao.categoria,
+                onChange: (e: React.ChangeEvent<HTMLSelectElement>) => setFormEdicao({ ...formEdicao, categoria: e.target.value })
+              },
+                ['Motor', 'Transmissao', 'Suspensao', 'Freios', 'Eletrica / Eletronica', 'Carroceria', 'Interior', 'Outro'].map((categoria) =>
+                  React.createElement('option', { key: categoria, value: categoria }, categoria)
+                )
+              )
+            ),
+            React.createElement('div', { className: 'col-12' },
+              React.createElement('label', { className: 'form-label' }, 'Titulo'),
+              React.createElement('input', {
+                className: 'form-control',
+                value: formEdicao.titulo,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) => setFormEdicao({ ...formEdicao, titulo: e.target.value })
+              })
+            ),
+            React.createElement('div', { className: 'col-12' },
+              React.createElement('label', { className: 'form-label' }, 'Descricao'),
+              React.createElement('textarea', {
+                className: 'form-control',
+                rows: 3,
+                value: formEdicao.descricao,
+                onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setFormEdicao({ ...formEdicao, descricao: e.target.value })
+              })
+            ),
+            React.createElement('div', { className: 'col-12' },
+              React.createElement('label', { className: 'form-label' }, 'Solucao'),
+              React.createElement('textarea', {
+                className: 'form-control',
+                rows: 2,
+                value: formEdicao.solucao,
+                onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => setFormEdicao({ ...formEdicao, solucao: e.target.value })
+              })
+            ),
+            React.createElement('div', { className: 'col-12' },
+              React.createElement('label', { className: 'form-label' }, 'E-mail'),
+              React.createElement('input', {
+                type: 'email',
+                className: 'form-control',
+                value: formEdicao.email,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) => setFormEdicao({ ...formEdicao, email: e.target.value })
+              })
+            )
+          ),
+          React.createElement('button', { type: 'submit', className: 'btn-porsche mt-2', disabled: salvandoEdicao },
+            React.createElement('i', { className: salvandoEdicao ? 'bi bi-hourglass-split' : 'bi bi-check2' }),
+            salvandoEdicao ? 'Salvando...' : 'Salvar Relato'
+          )
         ),
         aberto && React.createElement('form', { className: 'reply-form', onSubmit: handleResponder },
           React.createElement('div', { className: 'row g-2' },

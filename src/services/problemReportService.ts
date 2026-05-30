@@ -35,6 +35,11 @@ export const problemReportService = {
     return response.data;
   },
 
+  atualizar: async (relatoId: number, relato: ProblemReportPayload): Promise<PorscheProblema> => {
+    const response = await api.put<PorscheProblema>(`/relatos/${relatoId}`, relato);
+    return response.data;
+  },
+
   excluir: async (relatoId: number): Promise<void> => {
     await api.delete(`/relatos/${relatoId}`);
   },

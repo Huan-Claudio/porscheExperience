@@ -159,22 +159,6 @@ function App() {
     }
   };
 
-  // Atualizar modelo
-  const handleAtualizarModelo = async (id: number, modeloAtualizado: IPorscheModel) => {
-    try {
-      const modeloAtual = await porscheModelService.atualizar(id, modeloAtualizado);
-      setModelos(prev => {
-        const atualizados = prev.map(m => Number(m.id) === id ? modeloAtual : m);
-        window.PORSCHE_DATA = atualizados;
-        return atualizados;
-      });
-      handleNavegar('models');
-    } catch (error) {
-      console.error('Erro ao atualizar modelo:', error);
-      alert('Erro ao atualizar modelo. Tente novamente.');
-    }
-  };
-
   // ── Render ──
   const renderPagina = () => {
     const HomePage = window.HomePage as React.ElementType;
@@ -212,8 +196,7 @@ function App() {
           onFavoritar: handleFavoritar,
           onVerDetalhes: handleVerDetalhes,
           modelos,
-          onCriar: handleCriarModelo,
-          onAtualizar: handleAtualizarModelo
+          onCriar: handleCriarModelo
         });
 
       case 'detail':
@@ -223,9 +206,11 @@ function App() {
           onFavoritar: handleFavoritar,
           onVoltar: () => handleNavegar('models'),
           modelos,
-          onAtualizar: handleAtualizarModelo,
           usuario,
           onRelatoCriado: (relato: PorscheProblema) => setMeusRelatos(prev => [relato, ...prev]),
+          onRelatoAtualizado: (relatoAtualizado: PorscheProblema) => setMeusRelatos(prev => prev.map(relato =>
+            Number(relato.id) === Number(relatoAtualizado.id) ? relatoAtualizado : relato
+          )),
           onRelatoExcluido: (relatoId: number) => setMeusRelatos(prev => prev.filter(relato => Number(relato.id) !== relatoId))
         });
 

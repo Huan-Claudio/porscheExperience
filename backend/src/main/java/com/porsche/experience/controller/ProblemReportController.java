@@ -53,6 +53,14 @@ public class ProblemReportController {
         return ResponseEntity.status(HttpStatus.CREATED).body(problemReportService.responder(reportId, request));
     }
 
+    @PutMapping("/relatos/{reportId}")
+    public ResponseEntity<ProblemReportResponse> atualizar(
+            @PathVariable Long reportId,
+            @Valid @RequestBody ProblemReportRequest request
+    ) {
+        return ResponseEntity.ok(problemReportService.atualizar(reportId, request));
+    }
+
     @DeleteMapping("/relatos/{reportId}")
     public ResponseEntity<Void> excluir(@PathVariable Long reportId) {
         problemReportService.excluir(reportId);

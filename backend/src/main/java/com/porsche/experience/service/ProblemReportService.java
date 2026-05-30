@@ -114,6 +114,37 @@ public class ProblemReportService {
         return ProblemReplyResponse.from(problemReplyRepository.save(reply));
     }
 
+    public ProblemReportResponse atualizar(Long reportId, ProblemReportRequest request) {
+        validarQuilometragem(request.km());
+
+        ProblemReport report = problemReportRepository.findById(reportId)
+                .orElseThrow(() -> new IllegalArgumentException("Relato de problema não encontrado"));
+
+        Long modeloId = request.porscheModelId() != null ? request.porscheModelId() : report.getPorscheModelId();
+        if (!porscheModelRepository.existsById(modeloId)) {
+            throw new IllegalArgumentException("Modelo Porsche não encontrado");
+        }
+
+        report.setPorscheModelId(modeloId);
+        report.setCadastroId(request.cadastroId());
+        report.setAnoVeiculo(request.anoVeiculo());
+        report.setKm(request.km());
+        report.setCategoria(request.categoria());
+        report.setTitulo(request.titulo());
+        report.setDescricao(request.descricao());
+        report.setSolucao(request.solucao());
+        report.setEmail(request.email());
+        report.setSeveridade(normalizarSeveridade(request.severidade()));
+
+        List<ProblemReplyResponse> respostas = problemReplyRepository
+                .findByProblemReportIdOrderByDataCriacaoAsc(reportId)
+                .stream()
+                .map(ProblemReplyResponse::from)
+                .toList();
+
+        return ProblemReportResponse.from(problemReportRepository.save(report), respostas);
+    }
+
     public void excluir(Long reportId) {
         if (!problemReportRepository.existsById(reportId)) {
             throw new IllegalArgumentException("Relato de problema não encontrado");

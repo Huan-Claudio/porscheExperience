@@ -14,7 +14,6 @@ interface IModelsPageProps {
   onFavoritar: (id: string | number) => void;
   onVerDetalhes: (id: string | number) => void;
   onCriar?: (modelo: PorscheModel) => Promise<void>;
-  onAtualizar?: (id: number, modelo: PorscheModel) => Promise<void>;
 }
 
 const modeloVazio: PorscheModel = {
@@ -46,23 +45,12 @@ window.ModelsPage = function ModelsPage({
   onFavoritar,
   onVerDetalhes,
   onCriar,
-  onAtualizar,
 }: IModelsPageProps) {
   const [formAberto, setFormAberto] = React.useState(false);
-  const [editandoId, setEditandoId] = React.useState<number | null>(null);
   const [form, setForm] = React.useState<PorscheModel>(modeloVazio);
 
   const abrirCriacao = () => {
-    setEditandoId(null);
     setForm(modeloVazio);
-    setFormAberto(true);
-  };
-
-  const abrirEdicao = (modelo: PorscheModel) => {
-    const id = Number(modelo.id);
-    if (!Number.isFinite(id)) return;
-    setEditandoId(id);
-    setForm(modelo);
     setFormAberto(true);
   };
 
@@ -86,14 +74,11 @@ window.ModelsPage = function ModelsPage({
       ],
     };
 
-    if (editandoId && onAtualizar) {
-      await onAtualizar(editandoId, payload);
-    } else if (onCriar) {
+    if (onCriar) {
       await onCriar(payload);
     }
 
     setFormAberto(false);
-    setEditandoId(null);
     setForm(modeloVazio);
   };
 
@@ -152,7 +137,7 @@ window.ModelsPage = function ModelsPage({
                 ),
                 React.createElement('div', { className: 'd-flex gap-2 mt-3 flex-wrap' },
                   React.createElement('button', { className: 'btn-porsche', type: 'submit' },
-                    editandoId ? 'Atualizar Modelo' : 'Cadastrar Modelo'
+                    'Cadastrar Modelo'
                   ),
                   React.createElement('button', { className: 'btn-porsche-dark', type: 'button', onClick: () => setFormAberto(false) },
                     'Cancelar'
@@ -168,13 +153,7 @@ window.ModelsPage = function ModelsPage({
                       favoritado: favoritos.includes(String(modelo.id)),
                       onFavoritar,
                       onVerDetalhes,
-                    }),
-                    React.createElement('div', { className: 'd-flex gap-2 mt-2' },
-                      React.createElement('button', { className: 'btn-porsche-dark flex-grow-1', onClick: () => abrirEdicao(modelo) },
-                        React.createElement('i', { className: 'bi bi-pencil' }),
-                        ' Editar'
-                      )
-                    )
+                    })
                   )
                 )
               )

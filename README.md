@@ -9,7 +9,7 @@
 
 ## Descricao
 
-O Porsche Experience e uma aplicacao web completa com front-end em React + TypeScript e back-end Java integrado ao PostgreSQL. O sistema lista modelos Porsche vindos do banco, permite CRUD de modelos, cadastro/login de usuarios, favoritos persistidos por conta, relatos de problemas por modelo e respostas da comunidade.
+O Porsche Experience e uma aplicacao web completa com front-end em React + TypeScript e back-end Java integrado ao PostgreSQL. O sistema lista modelos Porsche vindos do banco, permite cadastro de modelos, cadastro/login de usuarios, favoritos persistidos por conta, relatos de problemas por modelo, edicao/exclusao de relatos e respostas da comunidade.
 
 ## Tecnologias Utilizadas
 
@@ -23,13 +23,17 @@ O Porsche Experience e uma aplicacao web completa com front-end em React + TypeS
 ## Funcionalidades
 
 - Listagem de modelos carregados do banco.
-- Cadastro, edicao, exclusao e detalhe de modelos.
+- Cadastro e detalhe de modelos.
 - Dashboard com contadores de modelos, favoritos e categorias.
 - Cadastro e login de usuarios.
 - Favoritos salvos por usuario.
-- Relatos de problemas por modelo.
+- Relatos de problemas por modelo, permitindo mais de um relato com o mesmo titulo/categoria.
+- Edicao e exclusao de relatos diretamente na tela de detalhe do modelo.
+- Exclusao de relato remove tambem as respostas vinculadas.
 - Respostas aos relatos.
 - Area "Minha Conta" com favoritos e relatos do usuario logado.
+- Botao "Sair da Conta" na area Minha Conta, redirecionando para Cadastro/Login.
+- Botao da Home alterna entre "Cadastre-se" e "Minha Conta" conforme o usuario esteja logado.
 - Layout responsivo com Bootstrap.
 - CORS configurado para integrar React e Java.
 
@@ -100,6 +104,8 @@ Tabelas principais:
 - `favorite_models`: favoritos por usuario.
 
 O script `database/init.sql` contem chaves primarias, chaves estrangeiras, indices e dados iniciais.
+
+Observacao sobre relatos: a tabela `problem_reports` nao usa mais chave unica para `(porsche_model_id, titulo)`. Isso permite registrar mais de um relato com o mesmo titulo ou categoria para o mesmo modelo. Os scripts removem a constraint antiga `uk_problem_report_model_title` caso ela exista em um banco ja criado.
 
 ## Configuracao do Back-end
 
@@ -174,18 +180,27 @@ Relatos:
 
 - `GET /api/modelos/{modeloId}/relatos`
 - `POST /api/modelos/{modeloId}/relatos`
+- `PUT /api/relatos/{relatoId}`
+- `DELETE /api/relatos/{relatoId}`
 - `POST /api/relatos/{relatoId}/respostas`
 
 ## CRUD Obrigatorio
 
-CRUD principal: `porsche_models`.
+CRUD principal atual da aplicacao: `problem_reports` (relatos de problemas).
 
-- Cadastrar: botao "Novo Modelo" na tela Modelos.
-- Listar: tela Modelos.
-- Carregar para edicao: botao "Editar" em cada card.
-- Atualizar: formulario de edicao na tela Modelos.
-- Excluir: botao "Excluir" em cada card.
+- Cadastrar: formulario "Relatar um Problema" na tela de detalhe do modelo.
+- Listar: secao "Problemas Conhecidos" na tela `ModelDetailPage`.
+- Carregar para edicao: botao "Editar" em cada relato.
+- Atualizar: formulario aberto dentro do card do relato.
+- Excluir: botao "Excluir" em cada relato, ao lado de "Responder".
 - Atualizacao da interface: o estado do React e atualizado apos cada operacao.
+
+Modelos:
+
+- Listar: tela Modelos.
+- Cadastrar: botao "Novo Modelo" na tela Modelos.
+- Detalhar: clique no card do modelo.
+- A edicao e exclusao de modelos foram removidas da tela Modelos para concentrar as acoes de manutencao nos relatos.
 
 ## CORS
 
@@ -221,6 +236,18 @@ Ver relatos:
 "C:\Program Files\PostgreSQL\18\bin\psql" -U postgres -d porsche_db -c "SELECT id, porsche_model_id, cadastro_id, titulo FROM problem_reports ORDER BY id DESC;"
 ```
 
+Editar relato:
+
+```cmd
+curl -X PUT http://localhost:8081/api/relatos/1 -H "Content-Type: application/json" -d "{\"porscheModelId\":1,\"categoria\":\"Motor\",\"titulo\":\"Relato atualizado\",\"descricao\":\"Descricao atualizada\",\"severidade\":\"Alta\"}"
+```
+
+Excluir relato:
+
+```cmd
+curl -X DELETE http://localhost:8081/api/relatos/1
+```
+
 ## Prints da Aplicacao
 
 Adicionar no README antes da entrega:
@@ -229,8 +256,10 @@ Adicionar no README antes da entrega:
 - Listagem de modelos.
 - Cadastro/Login.
 - Minha Conta.
+- Minha Conta com botao "Sair da Conta".
 - Detalhe do modelo com relatos.
-- CRUD de modelos.
+- Detalhe do modelo com botoes "Responder", "Editar" e "Excluir" nos relatos.
+- CRUD de relatos.
 
 ## Video Explicativo
 
@@ -242,10 +271,11 @@ Sugestao de roteiro:
 2. Front-end React adaptado para consumir API.
 3. Organizacao do back-end Java.
 4. Criacao do banco PostgreSQL.
-5. CRUD de modelos.
-6. Login, favoritos, relatos e respostas.
-7. Comunicacao React + Java via Axios.
-8. Explicacao do CORS.
+5. Cadastro e detalhe de modelos.
+6. CRUD de relatos: criar, editar, excluir e responder.
+7. Login, favoritos, Minha Conta e logout.
+8. Comunicacao React + Java via Axios.
+9. Explicacao do CORS.
 
 ## Observacoes de Entrega
 
